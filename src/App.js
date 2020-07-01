@@ -1,26 +1,24 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import {Switch, Route} from 'react-router-dom'
+import FrontPage from './page/frontpage/frontpage.page'
+import HomePage from './page/homepage/homepage.page'
+// import AccountCircle from '@material-ui/icons/AccountCircle'
+// import MailOutlineIcon from '@material-ui/icons/MailOutline';
+// import InputTextField from './components/textfield/textfield.component'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component{
+
+
+  render(){
+
+    return(
+      <Switch>
+        <Route exact path="/" component={FrontPage}></Route>
+        <Route exact path="/Home" component={HomePage}></Route>
+      </Switch>
+    )
+  }
 }
 
 export default App;

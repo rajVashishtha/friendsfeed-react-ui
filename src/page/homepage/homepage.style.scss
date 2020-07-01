@@ -1,0 +1,17 @@
+.floating-icon{
+    position: fixed;
+    top:550px;
+    left:100px;
+    z-index: 999;
+    .fab{
+        background-color:#fefefe;
+        border:2px solid #71e35f;
+    }
+}
+.forCards{
+    margin-top: 50px;
+    padding-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    width:60rem;
+}
