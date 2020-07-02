@@ -75,7 +75,7 @@ export default function CustomizedMenus({items, buttonIcon, iconStyle}) {
       >
         {
             items.map((item, index)=>(
-                <StyledMenuItem onClick={item.onClick}>
+                <StyledMenuItem key={`menu-${index}`} onClick={item.onClick}>
                     <StyledListItemIcon style={iconStyle}>
                         {item.icon}
                     </StyledListItemIcon>

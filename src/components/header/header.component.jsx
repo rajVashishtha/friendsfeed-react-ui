@@ -115,22 +115,22 @@ const Alert = ()=>{
 const menuItems = [
     {
         text:"Logout",
-        icon:(<ExitToAppOutlinedIcon fontSize="medium" />),
+        icon:(<ExitToAppOutlinedIcon  />),
         onClick:null
     },
     {
         text:"Setting",
-        icon:(<SettingsIcon fontSize="medium" />),
+        icon:(<SettingsIcon  />),
         onClick:null
     },
     {
         text:"Privacy",
-        icon:(<LockOutlinedIcon fontSize="medium" />),
+        icon:(<LockOutlinedIcon  />),
         onClick:null
     },
     {
         text:"About us",
-        icon:(<PermIdentityIcon fontSize="medium" />),
+        icon:(<PermIdentityIcon />),
         onClick:Alert
     }
 

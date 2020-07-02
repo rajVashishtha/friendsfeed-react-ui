@@ -26,6 +26,8 @@ import Badge from '@material-ui/core/Badge';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import CommentOutlinedIcon from '@material-ui/icons/CommentOutlined';
 
+import imageUrlBase from '../../constants/image'
+
 
 
 const useStyles = theme => ({
@@ -171,7 +173,7 @@ class PostCard extends React.Component {
           ) : (
               media === "NULL" ? (null):(<CardMedia
                 className={classes.media}
-                image={media}
+                image={imageUrlBase+media}
                 title={"media"}
               />)
               
@@ -193,9 +195,6 @@ class PostCard extends React.Component {
                    </Typography>
                    <Collapse in={!this.state.expand} timeout="auto" unmountOnExit>
                     <Typography variant="body2" color="textPrimary" component="p">
-                      {/* This impressive paella is a perfect party dish and a fun meal to cook
-                      together with your guests. Add 1 cup of frozen peas along with the
-                      mussels, if you like. */}
                       {this.state.cuttedPost}
                     </Typography>
                   </Collapse>
