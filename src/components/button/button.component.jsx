@@ -23,11 +23,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MaterialButton(props) {
   const classes = useStyles();
-  const {text, variant, children, padding} = props
+  const {text, variant, children, padding,disable=false} = props
 
   return (
     <div className={classes.root}>
       <Button variant={variant} 
+      disabled={disable}
       style={{
           paddingLeft:`${padding}`,
           paddingRight:`${padding}`

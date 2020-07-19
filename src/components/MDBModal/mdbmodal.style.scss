@@ -1,0 +1,24 @@
+.btn:focus {
+    outline: none !important;
+  }
+  label{
+      margin-bottom: none !important;
+  }
+.mdb_modal{
+    width: 70% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 100px !important;
+}
+.mdb_modal_footer{
+    display: flex !important;
+    width: auto !important;
+    justify-content: flex-end !important;
+    flex-direction: row !important;
+    padding-bottom: 10px !important;
+
+    &:last-child{
+        margin-right: 10px !important;
+    }
+   
+}

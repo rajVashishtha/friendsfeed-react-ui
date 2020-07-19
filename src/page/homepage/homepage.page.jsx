@@ -4,6 +4,9 @@ import Header from '../../components/header/header.component'
 import Fab from '@material-ui/core/Fab';
 import {EditOutlined} from '@material-ui/icons'
 import PostCard from '../../components/card/card.component'
+import MDBPostModal from '../../components/MDBModal/mdbmodal.component'
+import TextareaEmojiPicker from '../../components/TextareaEmojiPicker/textarea-emoji-picker.component'
+
 
 class HomePage extends React.Component{
     state={
@@ -11,9 +14,17 @@ class HomePage extends React.Component{
             
         ],
         postLikes:[],
-        loading:true
+        loading:true,
+        postModal:false
+    }
+    togglePostModal = ()=>{
+        document.body.className = ""
+        this.setState({
+            postModal:!this.state.postModal
+        })
     }
 
+    
    
 
     async componentDidMount(){
@@ -24,13 +35,10 @@ class HomePage extends React.Component{
             posts:result.message,
             postLikes:result.like,
             loading:false
-        })
-        
-        
+        })  
     }
 
     render(){
-
         return(
             <div>
                 <Header active="home" />
@@ -63,13 +71,14 @@ class HomePage extends React.Component{
                     }
                 </div>
                 <div className="floating-icon">
-                <Fab aria-label="post" className="fab" size="large">
+                <Fab aria-label="post" className="fab" size="large" onClick={this.togglePostModal}>
                     <EditOutlined style={{
                         color:"#71E35F",
                         fontSize:"30px"
                     }} />
                 </Fab>
                 </div>
+                <MDBPostModal body={(<TextareaEmojiPicker />)} open={this.state.postModal} title="Create Post" close={this.togglePostModal} />
             </div>
         )
     }
