@@ -30,6 +30,9 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import PermIdentityIcon from "@material-ui/icons/PermIdentity";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 
+import {Link} from 'react-router-dom'
+import { connect } from 'react-redux';
+
 const useStyles = makeStyles(theme =>({
     active:{
         color:"#71E35F"
@@ -136,8 +139,9 @@ const menuItems = [
 
 ]
 
-const Header = ({active})=>{
+const Header = ({active, currentUser})=>{
     const classes = useStyles()
+    console.log(currentUser)
     return(
         <div className={classes.grow}>
             <AppBar position="fixed" className={classes.appBar}>
@@ -185,9 +189,14 @@ const Header = ({active})=>{
                             flexDirection:"row",
                             justifyContent:"space-around",
                             alignItems:"center",
-                            
+                            paddingBottom:"5px",
+                            borderBottom: active === "profile" ? "2px solid #71E35F" :""
                         }}>
-                        <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" className={classes.avatarGreen} />
+                        <Link to="/profile" style={{
+                            textDecoration:"none"
+                        }}>
+                            <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" className={classes.avatarGreen} />
+                        </Link>
                         <Typography variant="subtitle1" style={{
                             color:"#888888",
                             marginLeft:"10px",
@@ -205,4 +214,8 @@ const Header = ({active})=>{
     )
 };
 
-export default Header
+const mapStateToProps= (state)=>({
+    currentUser:state.user.currentUser
+})
+
+export default connect(mapStateToProps)(Header)

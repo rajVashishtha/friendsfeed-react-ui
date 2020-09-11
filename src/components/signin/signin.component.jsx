@@ -119,6 +119,7 @@ class SignIn extends React.Component{
             invalidForm:false,
             showPassword:false
         })
+        this.props.history.push("/home")
     };
     handleClickShowPassword = () =>{
         this.setState({
