@@ -31,12 +31,13 @@ const useStyles = theme =>({
 class SignUp extends React.Component{
     state={
         rememberMe:false,
+        name:"",
         email:"",
         password:"",
-        wrongPassword:false,
-        wrongEmail:false,
-        forgotPassword:false,
-        showPassword:false
+        repeatPassword:"",
+        mismatchPassword:false,
+        showPassword:false,
+        invalidForm:false
     }
     changeChecked = () =>{
         this.setState({
@@ -49,77 +50,37 @@ class SignUp extends React.Component{
             [name]: value
           });
       };
-      validateForm = (val) =>{
-        const {email, password, repeatPassword} = val
-        if(email === "" || password === ""){
+      validateForm = () =>{
+        const {name, email, password, repeatPassword} = this.state
+        if(name === "" || email === "" || password === ""){
             this.setState({
-                invalidForm : true
+                invalidForm : true,
             })
             return false
         }
         if(password !== repeatPassword){
+            this.setState({
+                invalidForm:false,
+                mismatchPassword:true
+            })
             return false
         }
         return true
-      }
-   /*   handleSubmit = async (event) =>{
-          event.preventDefault();
-          const {email, password} = this.state;
-          if(!this.validateForm({email, password})){
-            return
-          }
-            const data = JSON.stringify({email, password})
-            $.ajax({
-                url:'https://diready.co/api/login',
-                type:'POST',
-                xhrFields: {
-                    withCredentials: true
-                 },
-                 crossDomain: true,
-                data: data,
-                datatype: 'application/json',
-                cache:false,
-                success:function(data){
-                    console.log(data)
-                },
-                error:function(xhr, status, err){
-                    console.log(status, err)
-                }
-            })
+      };// end validate form
 
-        //   const requestOptions = {
-        //     method: 'POST',
-        //     mode:'no-cors',
-        //     headers: { 
-        //         'Content-Type': 'application/json',
-        //         'Authorization': 'Bearer my-token',
-        //         'My-Custom-Header': 'foobar'
-        //     },
-        //     body: JSON.stringify({email, password})
-        // };//requestOptions
-        // console.log(requestOptions.body)
-        // const res = fetch('https://diready.co/api/login', requestOptions)
-        // console.log(res)
-        // res.then((response)=>response.json()).then(
-        //     (result)=>{
-        //         console.log(result)
-        //     }
-        // ).catch((error)=>{
-        //     console.log(error)
-        // });
-        this.setState({
-            name:"",
-            email:"",
-            password:"",
-            repeatpassword:"",
-            invalidForm:false
-        })
-    };*/
+
       handleClickShowPassword = () =>{
           this.setState({
               showPassword:!this.state.showPassword
           })
-      }
+      }; // end show password
+
+    handleSubmit = ()=>{
+        if(!this.validateForm()){
+            return
+        }
+
+    }
 
     render(){
         const {classes, formWidth} = this.props;
@@ -151,7 +112,7 @@ class SignUp extends React.Component{
                         <InputTextField value={this.state.email}
                         onChange={this.handleChange}
                         required
-                        width="340px" type="text" variant="standard" label="Email" name="email" icon={(<MailOutlineIcon className={classes.forIcon} />)} />
+                        width="340px" type="email" variant="standard" label="Email" name="email" icon={(<MailOutlineIcon className={classes.forIcon} />)} />
                     </Grid>
                     <Grid item xs={12}>
                         <InputTextField
@@ -164,7 +125,6 @@ class SignUp extends React.Component{
                                 <IconButton
                                   aria-label="toggle password visibility"
                                   onClick={this.handleClickShowPassword}
-                                  // onMouseDown={handleMouseDownPassword}
                                 >
                                   {this.state.showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
                                 </IconButton>
@@ -184,7 +144,6 @@ class SignUp extends React.Component{
                                 <IconButton
                                   aria-label="toggle password visibility"
                                   onClick={this.handleClickShowPassword}
-                                  // onMouseDown={handleMouseDownPassword}
                                 >
                                   {this.state.showPassword ? <VisibilityOutlined /> : <VisibilityOffOutlined />}
                                 </IconButton>
@@ -195,6 +154,9 @@ class SignUp extends React.Component{
                         value={this.state.repeatPassword} width="280px"  name="repeatPassword" variant="standard" label="Repeat Password"
                          icon={(<LockOutlinedIcon fontSize="large" className={classes.forIcon}/>)} />
                     </Grid>
+                    {
+                        this.state.mismatchPassword?(<Typography color="error" variant="caption" align="center">Mismatch Password</Typography>):(null)
+                    }
                     <Grid item>
                         <Grid container spacing={1} alignItems="flex-end" >
                             <Grid item style={{
@@ -213,6 +175,9 @@ class SignUp extends React.Component{
                         </Grid>
                         
                     </Grid>
+                    {
+                        this.state.invalidForm?(<Typography color="error" variant="caption" align="center">Invalid Form Details</Typography>):(null)
+                    }
                     <Grid item style={{
                         marginTop:"20px"
                     }}>
@@ -223,13 +188,11 @@ class SignUp extends React.Component{
                     }}>
                         <MaterialButton onClick={this.handleSubmit} text="Sign Up" variant="contained" padding="7rem"/>
                     </Grid>
-                    
-                    
                 </Grid>
                 </form>
             </div>
         )
     }
-}
+};// end class component
 
 export default withStyles(useStyles)(SignUp)

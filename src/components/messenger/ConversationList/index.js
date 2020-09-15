@@ -7,15 +7,17 @@ import axios from 'axios';
 
 import './ConversationList.css';
 import { AddCircleOutline } from '@material-ui/icons';
+import { Skeleton } from '@material-ui/lab';
 
 export default function ConversationList(props) {
   const [conversations, setConversations] = useState([]);
+  const [skeleton, setSkeleton] = useState(true)
   useEffect(() => {
-    getConversations()
+    getConversations();
   },[])
 
  const getConversations = () => {
-    axios.get('https://randomuser.me/api/?results=20').then(response => {
+    axios.get('https://randomuser.me/api/?results=30').then(response => {
         let newConversations = response.data.results.map(result => {
           return {
             photo: result.picture.large,
@@ -24,6 +26,7 @@ export default function ConversationList(props) {
           };
         });
         setConversations([...conversations, ...newConversations])
+        setSkeleton(false)
     });
   }
 
@@ -36,6 +39,31 @@ export default function ConversationList(props) {
           ]}
         />
         <ConversationSearch />
+          {
+            skeleton?(
+              <div>
+                <div style={{display:"flex",flexDirection:"row", alignItems:"center"}}>
+                  <div>
+                  <Skeleton animation="wave" variant="circle" height={50} width={50} />
+                  </div>
+                  <div style={{paddingLeft:10}}>
+                    <Skeleton animation="wave" variant="rect" height={10} width={300} />
+                    <Skeleton animation="wave" variant="rect" height={20} style={{marginTop:"10px"}} />
+                  </div>
+              </div>
+              <div style={{display:"flex",flexDirection:"row", alignItems:"center", marginTop:50}}>
+                <div>
+                <Skeleton animation="wave" variant="circle" height={50} width={50} />
+                </div>
+                <div style={{paddingLeft:10}}>
+                  <Skeleton animation="wave" variant="rect" height={10} width={300} />
+                  <Skeleton animation="wave" variant="rect" height={20} style={{marginTop:"10px"}} />
+                </div>
+            </div>
+              </div>
+            ):(null)
+          }
+        
         {
           conversations.map(conversation =>
             <ConversationListItem

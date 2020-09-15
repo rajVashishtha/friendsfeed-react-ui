@@ -1,28 +1,41 @@
 import React from 'react';
 import './App.css';
-import {Switch, Route} from 'react-router-dom'
+import {Switch, Route, Redirect} from 'react-router-dom'
 import FrontPage from './page/frontpage/frontpage.page'
 import HomePage from './page/homepage/homepage.page'
 import ProfilePage from './page/profilepage/profilepage.page';
 import MessagePage from './page/messagepage/messagepage.page';
-// import AccountCircle from '@material-ui/icons/AccountCircle'
-// import MailOutlineIcon from '@material-ui/icons/MailOutline';
-// import InputTextField from './components/textfield/textfield.component'
+import {PrivateRoute} from './components/privateRoute/privateRoute.component'
+import { connect } from 'react-redux';
+import VerificationPage from './page/verificationpage/verification.page';
 
 class App extends React.Component{
 
 
   render(){
-
+    const { currentUser} = this.props
     return(
       <Switch>
-        <Route exact path="/" component={FrontPage}></Route>
-        <Route exact path="/Home" component={HomePage}></Route>
-        <Route exact path="/profile" component={ProfilePage}></Route>
-        <Route exact path="/message" component={MessagePage}></Route>
+        <Route exact path="/" render={props=>
+          currentUser===null ? (<FrontPage {...props} />):(currentUser.active === 0?(<Redirect to={{
+            pathname:"/verify",
+            state:{from:props.location}
+          }} />):(<Redirect to={{
+            pathname:"/Home",
+            state:{from:props.location}
+          }} />))
+        }></Route>
+        <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/Home" component={HomePage}></PrivateRoute>
+        <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/profile" component={ProfilePage}></PrivateRoute>
+        <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/message" component={MessagePage}></PrivateRoute>
+        <Route exact path="/verify" component={VerificationPage}></Route>
       </Switch>
     )
   }
 }
 
-export default App;
+const mapStateToProps = (state)=>({
+  currentUser: state.user.currentUser
+})
+
+export default connect(mapStateToProps)(App)

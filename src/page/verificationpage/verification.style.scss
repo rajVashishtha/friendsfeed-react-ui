@@ -1,0 +1,12 @@
+.verification-main{
+    padding-top: 200px;
+    .for-email-verify{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 99;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

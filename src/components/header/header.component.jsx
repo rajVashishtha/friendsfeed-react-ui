@@ -1,5 +1,5 @@
 import React from 'react';
-import { fade, makeStyles, withStyles } from '@material-ui/core/styles';
+import { fade, withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -9,31 +9,21 @@ import NotificationsNoneOutlinedIcon from '@material-ui/icons/NotificationsNoneO
 import MailOutlineOutlinedIcon from '@material-ui/icons/MailOutlineOutlined';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
 import Badge from '@material-ui/core/Badge';
 import clsx from 'clsx';
-import FreeSolo from '../autocomplete/autocomplete.component'
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
-import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MailIcon from '@material-ui/icons/Mail';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import MoreIcon from '@material-ui/icons/MoreVert';
-
+import VirtualizedAutocomplete from '../autocomplete/autocomplete.component'
 import CustomizedMenus from '../menu/menu.component'
-
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ExitToAppOutlinedIcon from "@material-ui/icons/ExitToAppOutlined";
 import SettingsIcon from "@material-ui/icons/Settings";
 import PermIdentityIcon from "@material-ui/icons/PermIdentity";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import {setCurrentUser} from '../../redux/user/user.action'
 
-import {Link} from 'react-router-dom'
+import {Link, withRouter} from 'react-router-dom'
 import { connect } from 'react-redux';
 
-const useStyles = makeStyles(theme =>({
+const useStyles = theme=>({
     active:{
         color:"#71E35F"
     },
@@ -47,7 +37,10 @@ const useStyles = makeStyles(theme =>({
     forToolbar:{
         display:"flex",
         justifyContent:"space-around",
-        width:"70%"
+        width:"80%",
+        ["@media (max-width:1000px)"]:{
+            width:"100%"
+        }
     },
     forIcon:{
         fontSize:"35px",
@@ -105,7 +98,7 @@ const useStyles = makeStyles(theme =>({
           width: '20ch',
         },
       },
-}));
+});
 const StyledBadge = withStyles((theme) => ({
     badge: {
       padding: '0 4px',
@@ -115,41 +108,52 @@ const StyledBadge = withStyles((theme) => ({
 const Alert = ()=>{
     alert("hello")
 }
-const menuItems = [
-    {
-        text:"Logout",
-        icon:(<ExitToAppOutlinedIcon  />),
-        onClick:null
-    },
-    {
-        text:"Setting",
-        icon:(<SettingsIcon  />),
-        onClick:null
-    },
-    {
-        text:"Privacy",
-        icon:(<LockOutlinedIcon  />),
-        onClick:null
-    },
-    {
-        text:"About us",
-        icon:(<PermIdentityIcon />),
-        onClick:Alert
+
+
+
+class Header extends React.Component{
+    signOut = ()=>{
+        const {setCurrentUser, history} = this.props
+        setCurrentUser(null)
+        history.push("/")
     }
-
-]
-
-const Header = ({active, currentUser})=>{
-    const classes = useStyles()
-    console.log(currentUser)
-    return(
-        <div className={classes.grow}>
+    state={
+            menuItems:[
+                {
+                    text:"Logout",
+                    icon:(<ExitToAppOutlinedIcon  />),
+                    onClick:this.signOut
+                },
+                {
+                    text:"Setting",
+                    icon:(<SettingsIcon  />),
+                    onClick:null
+                },
+                {
+                    text:"Privacy",
+                    icon:(<LockOutlinedIcon  />),
+                    onClick:null
+                },
+                {
+                    text:"About us",
+                    icon:(<PermIdentityIcon />),
+                    onClick:Alert
+                }
+            
+            ],
+    }
+    render(){
+        const {classes, active, currentUser} = this.props
+        return(
+            <div className={classes.grow}>
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar className={classes.forToolbar}>
-                    <IconButton className={active === "home" ? clsx(classes.menuButton,classes.activeMenuButton) : classes.menuButton}
-                      size="medium" >
-                        <HomeOutlinedIcon  className={active === "home" ? clsx(classes.forIcon ,classes.active) : classes.forIcon} />
-                    </IconButton>
+                    <Link to="/home" style={{textDecoration:"none"}}>
+                        <IconButton className={active === "home" ? clsx(classes.menuButton,classes.activeMenuButton) : classes.menuButton}
+                        size="medium" >
+                            <HomeOutlinedIcon  className={active === "home" ? clsx(classes.forIcon ,classes.active) : classes.forIcon} />
+                        </IconButton>
+                    </Link>
                     <IconButton className={active === "trending" ? clsx(classes.menuButton,classes.activeMenuButton) : classes.menuButton}  size="medium">
                         <TrendingUpOutlinedIcon className={active === "trending" ? clsx(classes.forIcon ,classes.active) : classes.forIcon}/>
                     </IconButton>
@@ -158,31 +162,17 @@ const Header = ({active, currentUser})=>{
                             <NotificationsNoneOutlinedIcon className={active === "notifications" ? clsx(classes.forIcon ,classes.active) : classes.forIcon}/>
                         </StyledBadge>
                     </IconButton>
+                    <Link to="/message" style={{textDecoration:"none"}}>
                     <IconButton className={active === "message" ? clsx(classes.menuButton,classes.activeMenuButton) : classes.menuButton}  size="medium">
                         <StyledBadge badgeContent={10} color="secondary">
                             <MailOutlineOutlinedIcon className={active === "message" ? clsx(classes.forIcon ,classes.active) : classes.forIcon} />
                         </StyledBadge>
                     </IconButton>
-                    {/* <div className={classes.search}>
-                        <div className="">
-                            <IconButton className={classes.searchIcon}>
-                                <SearchIcon />
-                            </IconButton>
-                        </div>
-                            <InputBase
-                            placeholder="Search on friendsfeed..."
-                            style={{
-                                width:"300px"
-                            }}
-                            classes={{
-                                root: classes.inputRoot,    
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                            />
-                    </div> */}
-
-                    <FreeSolo />
+                    </Link>
+                    {
+                        active !== null ?(<VirtualizedAutocomplete />):(null)
+                    }
+                    {/* <FreeSolo /> */}
                     <div className={classes.menuButton}>
                         <div style={{
                             display:"flex",
@@ -195,27 +185,34 @@ const Header = ({active, currentUser})=>{
                         <Link to="/profile" style={{
                             textDecoration:"none"
                         }}>
-                            <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" className={classes.avatarGreen} />
+                            <Avatar alt={active===null?(currentUser?(currentUser.email):("Raj")):("Remy Sharp")} src="/static/images/avatar/1.jpg" className={classes.avatarGreen} />
                         </Link>
                         <Typography variant="subtitle1" style={{
                             color:"#888888",
                             marginLeft:"10px",
                             fontWeight:"bolder"
                         }}>
-                            Name
+                            {
+                                active ===null?(currentUser?(currentUser.email):(null)):("Name")
+                            }
                         </Typography>
                         </div>
                     </div>
-                    <CustomizedMenus items={menuItems} buttonIcon={(<ArrowDropDownIcon fontSize="large" />)} />
+                    <CustomizedMenus items={this.state.menuItems} buttonIcon={(<ArrowDropDownIcon fontSize="large" />)} />
 
                 </Toolbar>
             </AppBar>
         </div>
-    )
-};
+        )
+    }
+}
 
 const mapStateToProps= (state)=>({
     currentUser:state.user.currentUser
 })
 
-export default connect(mapStateToProps)(Header)
+const mapDispatchToProps = dispatch =>({
+    setCurrentUser : user => dispatch(setCurrentUser(user))
+})
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(withStyles(useStyles, {withTheme:true})(Header)))

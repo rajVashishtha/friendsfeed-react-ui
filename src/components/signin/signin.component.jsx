@@ -53,22 +53,14 @@ class SignIn extends React.Component{
         return true
       };
       validateResult = (result) =>{
-        const message = result.message;
-        console.log(result)
-        console.log(message)
-        if(message === "Email doesn't exist" || message.email){
+          if(result.status === 404){
             this.setState({
-                wrongEmail : true
-            });
-            return false
-        }
-        if(message === "Password Wrong"){
-            this.setState({
+                wrongEmail : true,
                 wrongPassword:true
             });
             return false
-        }
-        return true
+          }
+          return true
       }
       handleSubmit = async (event) =>{
           event.preventDefault();
@@ -77,22 +69,6 @@ class SignIn extends React.Component{
           if(!this.validateForm({email, password})){
             return
           }
-            const data = JSON.stringify({email, password})
-            console.log(data)
-            // $.ajax({
-            //     url:'https://diready.co/api/login',
-            //     type:'POST',
-            //     data: data,
-            //     datatype: 'application/json',
-            //     cache:false,
-            //     success:function(data){
-            //         console.log(data)
-            //     },
-            //     error:function(xhr, status, err){
-            //         console.log(status, err, xhr)
-            //     }
-            // })
-
           const requestOptions = {
             method: 'POST',
             mode:'cors',
@@ -104,11 +80,13 @@ class SignIn extends React.Component{
             body: JSON.stringify({email, password})
         };//requestOptions
         console.log(requestOptions.body)
-        const response = await fetch('https://diready.co/api/login', requestOptions)
+        const response = await fetch('https://friendsfeed.herokuapp.com/api/users/login', requestOptions)
         const result = await response.json()
-            if(!this.validateResult(result)){
-                return false
-            }
+        console.log("this->",result)
+        if(!this.validateResult(result)){
+            setCurrentUser(null)
+            return
+        }
         setCurrentUser(result.message[0])
         this.setState({
             email:"",
@@ -154,11 +132,6 @@ class SignIn extends React.Component{
                         required
                         width="340px" type="text" variant="standard" label="Email" name="email" icon={(<MailOutlineIcon className={classes.forIcon} />)} />
                     </Grid>
-                    {
-                        this.state.wrongEmail === true ? 
-                        (<Typography variant="caption" color="error" gutterBottom>Invalid Email</Typography>)
-                         : (null)
-                    }
 
                     <Grid item xs={12}>
                         <InputTextField
@@ -183,7 +156,7 @@ class SignIn extends React.Component{
                     </Grid>
                     {
                         this.state.wrongPassword === true ? 
-                        (<Typography variant="caption" color="error" gutterBottom>Wrong Password</Typography>)
+                        (<Typography variant="caption" color="error" gutterBottom>Invalid Credentials</Typography>)
                          : (null)
                     }
                     {

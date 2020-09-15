@@ -8,6 +8,7 @@ import moment from 'moment';
 import SendIcon from '@material-ui/icons/Send'
 
 import './MessageList.css';
+import { Avatar } from '@material-ui/core';
 
 const MY_USER_ID = 'apple';
 
@@ -154,6 +155,7 @@ const scrollToBottom = () => {
     return(
       <div className="message-list">
         <Toolbar
+          leftItems={<Avatar src="https://picsum.photos/200/300" />}
           title="Contact Name"
         />
 
