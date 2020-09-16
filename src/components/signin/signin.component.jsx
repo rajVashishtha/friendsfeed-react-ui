@@ -67,14 +67,14 @@ class SignIn extends React.Component{
       }
       handleSubmit = async (event) =>{
           event.preventDefault();
-          this.setState({
-              loading:true
-          })
           const {setCurrentUser} = this.props;
           const {email, password} = this.state;
           if(!this.validateForm({email, password})){
             return
           }
+          this.setState({
+            loading:true
+        })
           const requestOptions = {
             method: 'POST',
             mode:'cors',

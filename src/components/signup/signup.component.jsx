@@ -97,7 +97,7 @@ class SignUp extends React.Component{
             })
             return false
         }
-        if(password.length < 8){
+        if(password.length < 6){
             this.setState({
                 invalidGender:false,
                 shortPassword:true,
