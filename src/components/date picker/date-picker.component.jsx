@@ -1,4 +1,3 @@
-// import 'date-fns';
 import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import DateFnsUtils from '@date-io/date-fns';
@@ -78,13 +77,9 @@ const CssKeyboardDatePicker = withStyles({
   });
 
 
-export default function MaterialUIPickers() {
+export default function BasicDatePicker({selectedDate, handleDateChange}) {
   // The first commit of Material-UI
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
+ 
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>

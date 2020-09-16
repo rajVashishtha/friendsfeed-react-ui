@@ -14,6 +14,8 @@ import {connect} from 'react-redux';
 import {setCurrentUser}  from '../../redux/user/user.action';
 import {withRouter} from 'react-router-dom';
 import 'fontsource-roboto'
+import Loader from 'react-loader-spinner'
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
 // import $ from 'jquery'
 
 const useStyles = theme =>({
@@ -29,7 +31,8 @@ class SignIn extends React.Component{
         password:"",
         wrongPassword:false,
         wrongEmail:false,
-        forgotPassword:false
+        forgotPassword:false,
+        loading:false
     }
     changeChecked = () =>{
         this.setState({
@@ -64,6 +67,9 @@ class SignIn extends React.Component{
       }
       handleSubmit = async (event) =>{
           event.preventDefault();
+          this.setState({
+              loading:true
+          })
           const {setCurrentUser} = this.props;
           const {email, password} = this.state;
           if(!this.validateForm({email, password})){
@@ -79,10 +85,12 @@ class SignIn extends React.Component{
             },
             body: JSON.stringify({email, password})
         };//requestOptions
-        console.log(requestOptions.body)
         const response = await fetch('https://friendsfeed.herokuapp.com/api/users/login', requestOptions)
         const result = await response.json()
         console.log("this->",result)
+        this.setState({
+            loading:false
+        })
         if(!this.validateResult(result)){
             setCurrentUser(null)
             return
@@ -172,11 +180,21 @@ class SignIn extends React.Component{
                     <Grid item style={{
                         marginTop:"20px"
                     }}>
-                        <MaterialButton onClick={this.handleSubmit} text="Login" variant="contained" padding="7rem"/>
+                        
+                    {
+                        this.state.loading?(<Loader
+                            type="Rings"
+                            color="#71E35F"
+                            height={80}
+                            width={80}
+                            visible={true} 
+                        />):(<MaterialButton onClick={this.handleSubmit} text="Login" variant="contained" padding="7rem"/>)
+                    }
                     </Grid>
                     
                 </Grid>
                 </form>
+                
             </div>
         )
     }

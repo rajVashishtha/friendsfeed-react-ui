@@ -18,11 +18,9 @@ class App extends React.Component{
       <Switch>
         <Route exact path="/" render={props=>
           currentUser===null ? (<FrontPage {...props} />):(currentUser.active === 0?(<Redirect to={{
-            pathname:"/verify",
-            state:{from:props.location}
+            pathname:"/verify"
           }} />):(<Redirect to={{
-            pathname:"/Home",
-            state:{from:props.location}
+            pathname:"/Home"
           }} />))
         }></Route>
         <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/Home" component={HomePage}></PrivateRoute>
