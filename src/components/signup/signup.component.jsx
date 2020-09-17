@@ -136,7 +136,8 @@ class SignUp extends React.Component{
             selectedDate:new Date(),
             alreadyExist:false,
             gender:'',
-            invalidGender:false
+            invalidGender:false,
+            loading:false
         })
         return
     }
@@ -153,7 +154,9 @@ class SignUp extends React.Component{
             gender:gender,
             dob: moment(selectedDate).format("YYYY-MM-DD")
         }
-        axios.post('https://friendsfeed.herokuapp.com/api/users/register', data).then(response=>{
+        this.setState({loading:true},()=>{
+
+            axios.post('https://friendsfeed.herokuapp.com/api/users/register', data).then(response=>{
             console.log(response)
             const {setCurrentUser, history} = this.props
                 
@@ -164,13 +167,14 @@ class SignUp extends React.Component{
                 return
         },
         (error)=>{
-            this.resetState()
                 this.setState({
-                    alreadyExist:true
+                    alreadyExist:true,
+                    loading:false
                 })
             return
         }
         )
+        })
 
         return
 
@@ -210,6 +214,9 @@ class SignUp extends React.Component{
                             Enter Your Details To Sign Up
                          </Typography>
                     </Grid>
+                    {
+                        this.state.alreadyExist?(<Typography color="error" align="center">User already exist !</Typography>):(null)
+                    }
                     <Grid item xs={12}>
                         <InputTextField value={this.state.name}
                         onChange={this.handleChange}
@@ -329,7 +336,7 @@ class SignUp extends React.Component{
                     <Grid item style={{
                         marginTop:"20px"
                     }}>
-                        <MaterialButton onClick={this.handleSubmit} text="Sign Up" variant="contained" padding="7rem"/>
+                        
                     {
                         this.state.loading?(<Loader
                             type="Rings"
@@ -337,7 +344,7 @@ class SignUp extends React.Component{
                             height={80}
                             width={80}
                             visible={true} 
-                        />):(null)
+                        />):(<MaterialButton onClick={this.handleSubmit} text="Sign Up" variant="contained" padding="7rem"/>)
                     }
                     </Grid>
                 </Grid>

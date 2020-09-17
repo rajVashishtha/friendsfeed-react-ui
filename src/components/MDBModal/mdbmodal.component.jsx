@@ -5,7 +5,7 @@ import FileInput from '../../components/file input/fileinput.component'
 import MaterialButton from '../button/button.component'
 import ImageOutlinedIcon from '@material-ui/icons/ImageOutlined'
 import {connect} from 'react-redux'
-import 'bootstrap-css-only/css/bootstrap.css'
+import '../../constants/bootstrap.css'
 
 class MDBPostModal extends Component {
   state = {
