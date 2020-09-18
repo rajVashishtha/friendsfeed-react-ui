@@ -5,7 +5,6 @@ import MailOutlineIcon from '@material-ui/icons/MailOutline'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import PersonOutlineOutlinedIcon from '@material-ui/icons/PersonOutlineOutlined';
 import {withStyles} from '@material-ui/styles'
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles'
 import MaterialButton from '../button/button.component'
 import SwitchLabel from '../switch/switch.component'
 import { Typography, FormControl, FormHelperText, InputLabel, Select, MenuItem } from '@material-ui/core'

@@ -1,6 +1,6 @@
 import React from 'react';
 import Picker, { SKIN_TONE_MEDIUM_DARK } from 'emoji-picker-react';
-import 'bootstrap-css-only/css/bootstrap.css'
+import '../../constants/bootstrap.css'
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import './textarea-emoji-picker.style.scss'
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
