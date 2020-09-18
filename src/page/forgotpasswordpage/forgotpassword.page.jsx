@@ -7,6 +7,9 @@ import InputTextField from '../../components/textfield/textfield.component'
 import {VisibilityOutlined, VisibilityOffOutlined} from '@material-ui/icons'
 import './forgotpassword.style.scss'
 import axios from 'axios'
+import {setCurrentUser }from '../../redux/user/user.action'
+import { withRouter } from 'react-router-dom'
+import Loader from 'react-loader-spinner'
 
 class ForgotPasswordPage extends React.Component{
     state={
@@ -18,7 +21,9 @@ class ForgotPasswordPage extends React.Component{
         confirm:"",
         showPassword:false,
         invalid:false,
-        invalidEmail:false
+        invalidEmail:false,
+        invalidOTP:false,
+        loader:false
     }
     componentDidMount(){
         const {currentUser} = this.props
@@ -27,11 +32,10 @@ class ForgotPasswordPage extends React.Component{
             this.setState({
                 input:false,
                 email:currentUser.user[0].email,
-                opt_and_password:true
             })
             axios.post('https://friendsfeed.herokuapp.com/api/users/resetPasswordRequest',{email:currentUser.user[0].email}).then(response=>{
-                this.setState({
-                        email:response.data.message.email
+                    this.setState({
+                        email:currentUser.user[0].email,
                     })
             },error=>{
                 this.setState({
@@ -42,20 +46,23 @@ class ForgotPasswordPage extends React.Component{
     };
     emailSubmit = (e)=>{
         e.preventDefault();
-        axios.post('https://friendsfeed.herokuapp.com/api/users/resetPasswordRequest',{email:this.state.email}).then(response=>{
-                console.log(response)
-                this.setState({
-                        email:response.message.email
-                    })
+        this.setState({
+            loader:true
+        })
+        axios.post('https://friendsfeed.herokuapp.com/api/users/resetPasswordRequest',{email:this.state.emailSetter}).then(response=>{
                 this.setState({
                     email:this.state.emailSetter,
-                    emailSetter:""
+                    emailSetter:"",
+                    loader:false
                 })
             },error=>{
                 this.setState({
-                    invalidEmail:true
+                    invalidEmail:true,
+                    loader:false
                 })
+                
             });//end axios call
+        
     };
     handleClickShowPassword = ()=>{
         this.setState({
@@ -75,7 +82,7 @@ class ForgotPasswordPage extends React.Component{
     };
     validateSubmit = ()=>{
         const {password, confirm} = this.state;
-        if(password !== confirm && password.length < 6){
+        if(password !== confirm || password.length < 6){
             this.setState({
                 invalid:true
             })
@@ -91,8 +98,22 @@ class ForgotPasswordPage extends React.Component{
         if(!this.validateSubmit()){
             return
         }
+        this.setState({
+            loader:true
+        })
         const {email, otp, password} = this.state;
-        console.log(email, otp,password)
+        const data = {email:email,otp:otp,password:password};
+        axios.post('https://friendsfeed.herokuapp.com/api/users/resetPassword',data).then(response=>{
+            const {setCurrentUser,history} = this.props
+            setCurrentUser(null)
+            history.push("/")
+        }).catch(error=>{
+            this.setState({
+                invalid:false,
+                invalidOTP:true,
+                loader:false
+            })
+        })
     }
     render(){
         const {currentUser} = this.props
@@ -114,8 +135,16 @@ class ForgotPasswordPage extends React.Component{
                             <form className="for_email" onSubmit={this.emailSubmit}>
                                 <InputTextField type="email" value={this.state.emailSetter} onChange={this.handleEmailSetter}
                                  variant="standard" label="Email" required/>
-                            
-                                <MaterialButton variant="outlined" text="Send" type="submit"/>
+                                {
+                                    this.state.loader?(<Loader
+                                        type="Rings"
+                                        color="#71E35F"
+                                        height={80}
+                                        width={80}
+                                        visible={true} 
+                                    />):(<MaterialButton variant="outlined" text="Send" type="submit"/>)
+                                }
+                                
                             </form>
                         </div>
                     ):(
@@ -158,7 +187,21 @@ class ForgotPasswordPage extends React.Component{
                             {
                                 this.state.invalid?(<Typography align="center" color="error">Mismatch password or short password </Typography>):(null)
                             }
-                                <MaterialButton variant="outlined" text="Send" type="submit"/>
+                            {
+                                this.state.invalidOTP?(<Typography align="center" color="error">Invalid OTP</Typography>):(null)
+                            }
+
+                            {
+                                this.state.loader?(<Loader
+                                    type="Rings"
+                                    color="#71E35F"
+                                    height={80}
+                                    width={80}
+                                    visible={true} 
+                                />):(<MaterialButton variant="outlined" text="Send" type="submit"/>)
+                            }
+                                
+                                
                             </form>
                         </div>
                     )
@@ -172,4 +215,7 @@ class ForgotPasswordPage extends React.Component{
 const mapStateToProps = (state)=>({
     currentUser: state.user.currentUser
   })
-export default connect(mapStateToProps)(ForgotPasswordPage);
+const mapDispatchToProps = dispatch =>({
+setCurrentUser : user => dispatch(setCurrentUser(user))
+})
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(ForgotPasswordPage))

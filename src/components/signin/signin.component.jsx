@@ -12,7 +12,7 @@ import IconButton from '@material-ui/core/IconButton';
 import {VisibilityOutlined, VisibilityOffOutlined} from '@material-ui/icons'
 import {connect} from 'react-redux';
 import {setCurrentUser}  from '../../redux/user/user.action';
-import {withRouter} from 'react-router-dom';
+import {withRouter,Link} from 'react-router-dom';
 import 'fontsource-roboto'
 import Loader from 'react-loader-spinner'
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
@@ -176,6 +176,13 @@ class SignIn extends React.Component{
                         marginTop:"20px"
                     }}>
                         <SwitchLabel label="Remember me" name="remember_me" checked={this.state.rememberMe} onChange={this.changeChecked}  />
+                    </Grid>
+                    <Grid item style={{
+                        marginTop:"20px"
+                    }}>
+                        <Typography align="center">Not so sharp , {"  "}
+                            <Link to="/recover-password" style={{textDecoration:"none",color:"#71ef5e"}}>Forgot Password ?</Link>
+                        </Typography>
                     </Grid>
                     <Grid item style={{
                         marginTop:"20px"
