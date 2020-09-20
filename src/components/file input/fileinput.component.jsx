@@ -31,99 +31,60 @@ class FileInput extends React.Component{
         imageArray:[]
     }
     componentDidMount(){
-        const {text, postImages} = this.props
+        const {text,setPostButton} = this.props
+        setPostButton(true)
         this.setState({
             file_name:text,
-            imageArray:postImages
+            imageArray:[]
         })
         console.log(this.state.imageArray)
-    }
+    };
 
-    readURI(e){
-        if (e.target.files) {
-            const options = {
-                maxSizeMB: 1,
-                maxWidthOrHeight: 1920,
-                useWebWorker: true
-            }
-            const {setPostImages,setPostButton,postButton} = this.props
-            // console.log(postButton)
-            const files = Array.from(e.target.files);
-            var compressed = files.map(file=>(imageCompression(file, options)))
-            compressed.forEach(comp=>{
-                comp.then(value=>{
-                    var f =[value]
-                    console.log(f)
-                    Promise.all(f.map(file => {
-                return (new Promise((resolve,reject) => {
-                    const reader = new FileReader();
-                    reader.addEventListener('load', (ev) => {
-                        resolve(ev.target.result);
-                    });
-                    reader.addEventListener('error', reject);
-                    reader.readAsDataURL(file);
-                }));
-                    }))
-                    .then(images => {
-                        var temp = this.state.imageArray
-                        temp.push(images[0])
-                        this.setState({ imageArray : temp })
-                        setPostImages(temp)
-            
-                    }, error => {        
-                        console.error(error);
-                    });
-
-                })
-            })
-     
-            // Promise.all(files.map(file => {
-            //     return (new Promise((resolve,reject) => {
-            //         const reader = new FileReader();
-            //         reader.addEventListener('load', (ev) => {
-            //             resolve(ev.target.result);
-            //         });
-            //         reader.addEventListener('error', reject);
-            //         reader.readAsDataURL(file);
-            //     }));
-            // }))
-            // .then(images => {
-            //     this.setState({ imageArray : images })
-    
-            // }, error => {        
-            //     console.error(error);
-            // });
-            
-        }
-        
-    }
-    initiate = async event =>{
-        return await new Promise((resolve,reject)=>{
-            this.readURI(event)
-            setTimeout(()=>{resolve(true)},5000)
-            // resolve(true)
+    getbase64 = (blob)=>{
+        return new Promise((resolve, reject)=>{
+            let reader = new FileReader(); 
+                reader.readAsDataURL(blob); 
+                reader.onloadend = function () { 
+                    let base64String = reader.result; 
+                    resolve(base64String)
+                } 
         })
     }
+
     fileChange = (event) =>{
-        const {target} = event
-        const {setPostButton} = this.props
-        setPostButton(false)
-        if(target.files.length === 1){
-            this.setState({
-                file_name:target.files[0].name
-            })
-        }
-        else{
-            this.setState({
-                file_name:`${target.files.length} Pictures`
-            })
-        }
-        this.initiate(event).then(res=>{
-            console.log(res)
-            if(res){
-                setPostButton(true)
+        const {setPostButton, setPostImages} = this.props
+        const files = Array.from(event.target.files)
+        console.log(files)
+        const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true
+          }
+          setPostButton(false)
+        const compressed_files = files.map(async file=>await imageCompression(file, options))
+        console.log(compressed_files)
+        Promise.all(compressed_files).then(async modFiles=>{
+            let uploadableFiles = [];
+            let avatarSRC = [];
+            for (var i = modFiles.length - 1; i >= 0; i--) {
+                let filename = `temp${i}.jpeg`;
+                let filetype = "jpeg";
+                let filelastMod = files[i].lastModified;
+                uploadableFiles.push(new File([modFiles[i]], filename, {type: filetype, lastModified: filelastMod}));
+                let to_add_src = await this.getbase64(modFiles[i])
+                avatarSRC.push(to_add_src)
+                console.log(to_add_src)
             }
-        })
+            console.log(uploadableFiles)
+            console.log(avatarSRC)
+            this.setState({
+                file_name:`${avatarSRC.length} files selected`,
+                imageArray:avatarSRC
+            })
+            setPostImages(uploadableFiles)
+            setPostButton(true)
+            
+        });// end promise
     };
 
     resetFiles = () =>{

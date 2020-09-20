@@ -138,7 +138,7 @@ class SignIn extends React.Component{
                         <InputTextField value={this.state.email}
                         onChange={this.handleChange}
                         required
-                        width="340px" type="text" variant="standard" label="Email" name="email" icon={(<MailOutlineIcon className={classes.forIcon} />)} />
+                        width="340px" type="email" variant="standard" label="Email" name="email" icon={(<MailOutlineIcon className={classes.forIcon} />)} />
                     </Grid>
 
                     <Grid item xs={12}>

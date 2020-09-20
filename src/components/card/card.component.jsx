@@ -25,8 +25,9 @@ import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutline
 import Badge from '@material-ui/core/Badge';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import CommentOutlinedIcon from '@material-ui/icons/CommentOutlined';
+import Carousel from 'react-material-ui-carousel'
+import {connect} from 'react-redux'
 
-import imageUrlBase from '../../constants/image'
 
 
 
@@ -78,21 +79,7 @@ class PostCard extends React.Component {
     super(props);
     this.state = {
       items: [
-        {
-          text: "Report",
-          icon: (<FlagOutlinedIcon />),
-          onClick: null
-        },
-        {
-          text: "Share",
-          icon: (<ShareOutlinedIcon />),
-          onClick: null
-        },
-        {
-          text: "Edit",
-          icon: (<EditTwoToneIcon />),
-          onClick: null
-        }
+        
       ],
       expand: false,
       loading: true,
@@ -126,19 +113,40 @@ class PostCard extends React.Component {
       }  
 }
   componentDidMount(){
-    const { post = "default"} = this.props
+    const { post = "default", currentUser, userId} = this.props
+    console.log(currentUser, userId)
     this.setState({
-      liked : this.props.liked
+      liked : this.props.liked,
+      items: currentUser.user[0].id === userId?([{
+        text: "Report",
+        icon: (<FlagOutlinedIcon />),
+        onClick: null
+      },
+      {
+        text: "Share",
+        icon: (<ShareOutlinedIcon />),
+        onClick: null
+      },
+      {
+        text: "Edit",
+        icon: (<EditTwoToneIcon />),
+        onClick: null
+      }]):([{
+        text: "Report",
+        icon: (<FlagOutlinedIcon />),
+        onClick: null
+      },
+      {
+        text: "Share",
+        icon: (<ShareOutlinedIcon />),
+        onClick: null
+      }])
     })
-    this.cutPostData(post)
-    
-    
+    this.cutPostData(post)    
   }
   render() {
-    const { style, classes, loading, postId, likes, comments, media, userId } = this.props;
-    
-    
-
+    const { style, classes, loading,user, postId, likes, comments, post_images=[], userId } = this.props;
+    const real_post_images = post_images.filter(item=>item!==null)
     return (
       <Card className={classes.root} style={style} elevation={1} variant="outlined">
         <CardHeader
@@ -156,14 +164,14 @@ class PostCard extends React.Component {
             loading ? (
               <Skeleton animation="wave" height={10} width="80%" style={{ marginBottom: 6 }} />
             ) : (
-                "Name"
+                user.name
               )
           }
           subheader={
             loading ? (
               <Skeleton animation="wave" height={10} width="40%" />
             ) : (
-                "Username"
+                  user.username
               )
           }
         />
@@ -171,11 +179,20 @@ class PostCard extends React.Component {
           loading ? (
             <Skeleton animation="wave" variant="rect" className={classes.media} />
           ) : (
-              media === "NULL" ? (null):(<CardMedia
-                className={classes.media}
-                image={imageUrlBase+media}
-                title={"media"}
-              />)
+              real_post_images.length === 0 ? (null):(<Carousel autoPlay={false}
+               animation="slide" navButtonsAlwaysInvisible={real_post_images.length === 1}
+               indicators={real_post_images.length > 1}
+               >
+              {
+                real_post_images.map(item=>
+                  <CardMedia
+                  className={classes.media}
+                  image={item}
+                  title={"media"}
+                  />
+                )
+              }
+            </Carousel>)
               
             )
         }
@@ -274,4 +291,8 @@ class PostCard extends React.Component {
   }
 };
 
-export default withStyles(useStyles)(PostCard)
+const mapStateToProps = state=>({
+  currentUser: state.user.currentUser
+})
+
+export default connect(mapStateToProps)(withStyles(useStyles)(PostCard))

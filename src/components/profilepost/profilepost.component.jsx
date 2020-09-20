@@ -2,6 +2,9 @@ import React from 'react'
 import FrontTabs from '../../components/tabs/tabs.component'
 import PostCard from '../../components/card/card.component'
 import {connect} from 'react-redux'
+import axios from 'axios'
+import { setCurrentUser } from '../../redux/user/user.action'
+import moment from 'moment'
 
 const LoadingPost = ()=>{
     return(
@@ -26,48 +29,59 @@ class ProfilePost extends React.Component{
                 likes:[]
             }
         ]
+    };
+    UploadsValue = ({result})=>{
+        console.log(result)
+        const posts = result
+        return(
+            <div>
+                {
+                  posts.map((item, index)=>(
+                    <PostCard style={index > 0 ? ({
+                        marginTop:"40px"
+                        
+                    }):({})} key={`self-post-${index}`}
+                     loading={false} user={item.user[0]} 
+                     post_images={[item.post_image1, item.post_image2, item.post_image3, item.post_image4, item.post_image5]}
+                     liked={Boolean(item.liked)} 
+                    postId={item.id}
+                    post={item.post} userId={item.user_id}
+                    likes={item.likes_count} comments={item.comments_count}
+                    createdAt = {moment(item.created_at)}
+                    />
+                    ))              
+                }             
+            </div>
+        )
     }
     async componentDidMount(){
-        const response = await fetch('http://diready.co/api/userpost?user_id=1');
-        const result = await response.json()
-        const UploadsValue = ({result})=>{
-            console.log(result)
-            const posts = result.message
-            const postLikes = result.like
-            return(
-                <div>
+        const {currentUser,setCurrentUser} = this.props
+
+        axios.get('https://friendsfeed.herokuapp.com/api/users/myPosts',{
+            headers:{
+                'authorization':`${currentUser.token_type} ${currentUser.access_token}`
+            }
+        }).then(res=>{
+            this.setState({
+                items:[
                     {
-                      posts.map((item, index)=>(
-                        <PostCard style={index > 0 ? ({
-                            marginTop:"40px"
-                            
-                        }):({})} key={`personal-${index}`}
-                         loading={false}
-                         liked={Boolean(postLikes[index].status === "True" ? 1 : 0)} 
-                        postId={item.post_id}
-                        post={item.post} userId={item.user_id} media={item.post_image}
-                        likes={item.likes_count} comments={item.comments_count}
-                        />
-                        ))              
-                    }             
-                </div>
-            )
-        }
-        this.setState({
-            items:[
-                {
-                    text:"Uploads",
-                    value:(<UploadsValue result={result} />),
-                    likes:result.like
-                },
-                {
-                    text:"Tags",
-                    value:(<LoadingPost />),
-                    likes:[]
-                }
-            ]
+                        text:"Uploads",
+                        value:(<this.UploadsValue result={res.data.message} />),
+                        likes:[]
+                    },
+                    {
+                        text:"Tags",
+                        value:(<LoadingPost />),
+                        likes:[]
+                    }
+                ]
+            })
+        }).catch(err=>{
+            if(err.response.status === 401){
+                setCurrentUser(null)
+            }
         })
-    }
+    };// end componentDidMount
     render(){
             console.log(this.state.items)
         return (<div>
@@ -81,5 +95,9 @@ class ProfilePost extends React.Component{
 
 const mapStateToProps = (state)=>({
     currentUser:state.user.currentUser
-})
-export default connect(mapStateToProps)(ProfilePost);
+});
+
+const mapDispatchToProps = (dispatch)=>({
+    setCurrentUser: user=> dispatch(setCurrentUser(user))
+});
+export default connect(mapStateToProps, mapDispatchToProps)(ProfilePost);

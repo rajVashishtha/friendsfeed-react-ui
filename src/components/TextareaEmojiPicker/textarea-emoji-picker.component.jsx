@@ -4,6 +4,8 @@ import '../../constants/bootstrap.css'
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import './textarea-emoji-picker.style.scss'
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import postActions from '../../redux/post images/post.action';
+import { connect } from 'react-redux';
 
 class TextareaEmojiPicker extends React.Component{
     state={
@@ -11,9 +13,11 @@ class TextareaEmojiPicker extends React.Component{
         displayEmojiPicker:false
     }
     handleChange = (event)=>{
+        const {postText, setPostText} = this.props
         this.setState({
             text:event.target.value
-        })
+        },()=>{setPostText(this.state.text)})
+        
     };
     onEmojiClick = (event, emojiObject)=>{
         this.setState({
@@ -57,8 +61,16 @@ class TextareaEmojiPicker extends React.Component{
             </div>
         );
     }
-};
-export default TextareaEmojiPicker
+}; 
+
+
+const mapDispatchToProps = dispatch =>({
+    setPostText : postText => dispatch(postActions.setPostText(postText))
+})
+const mapStateToProps = state =>({
+    postText:state.postImages.postText
+})
+export default connect(mapStateToProps, mapDispatchToProps)(TextareaEmojiPicker)
 
 // const EmojiData = ({chosenEmoji}) => (
 //   <div>

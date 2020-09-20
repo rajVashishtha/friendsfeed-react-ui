@@ -7,9 +7,14 @@ const setPostButton = value =>({
     payload: value
 })
 
+const setPostText = text=>({
+    type:'SET_POST_TEXT',
+    payload:text
+})
 const postActions = {
     setPostButton,
-    setPostImages
+    setPostImages,
+    setPostText
 }
 
 export default postActions

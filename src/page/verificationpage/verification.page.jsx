@@ -13,7 +13,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { withRouter } from 'react-router-dom'
 function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
+  return <MuiAlert elevation={6} variant="filled" {...props} style={{backgroundColor:"#71ef5e"}}/>;
 }
 
 
@@ -63,19 +63,15 @@ class VerificationPage extends React.Component{
             user_id: currentUser.user_id
         }
         axios.post('https://friendsfeed.herokuapp.com/api/users/verifyOtp', data).then(response=>{
-            if(response.status === 404){
-                this.setState({
-                    wrong:true
-                })
-                return
-            }
-            else{
-                this.setState({
-                    wrong:false,
-                    snackbar:true
-                })   
-            }
-        });//end axios
+            this.setState({
+                wrong:false,
+                snackbar:true
+            }) 
+        },error=>{
+            this.setState({
+            wrong:true
+        })
+    });//end axios
         
     }
     

@@ -1,6 +1,7 @@
 const INITIAL_STATE = {
     postImages : [],
-    postButton:true
+    postButton:true,
+    postText:""
 }
 
 const postReducer = (state = INITIAL_STATE, action) =>{
@@ -14,6 +15,11 @@ const postReducer = (state = INITIAL_STATE, action) =>{
             return{
                 ...state,
                 postButton: action.payload
+            }
+        case 'SET_POST_TEXT':
+            return {
+                ...state,
+                postText:action.payload
             }
         default:
             return state

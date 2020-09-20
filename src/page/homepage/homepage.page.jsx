@@ -2,11 +2,20 @@ import React from 'react'
 import './homepage.style.scss'
 import Header from '../../components/header/header.component'
 import Fab from '@material-ui/core/Fab';
-import {EditOutlined} from '@material-ui/icons'
+import { EditOutlined} from '@material-ui/icons'
 import PostCard from '../../components/card/card.component'
 import MDBPostModal from '../../components/MDBModal/mdbmodal.component'
 import TextareaEmojiPicker from '../../components/TextareaEmojiPicker/textarea-emoji-picker.component'
-
+import {setCurrentUser} from '../../redux/user/user.action'
+import {connect} from 'react-redux'
+import axios from 'axios';
+import { Typography } from '@material-ui/core';
+import postActions from '../../redux/post images/post.action'
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} style={{backgroundColor:"#71ef5e"}} />;
+}
 
 class HomePage extends React.Component{
     state={
@@ -15,33 +24,104 @@ class HomePage extends React.Component{
         ],
         postLikes:[],
         loading:true,
-        postModal:false
+        postModal:false,
+        noPosts:false,
+        nothingToPost:false,
+        limitExceed:false,
+        snackbar:false
     }
     togglePostModal = ()=>{
         document.body.className = ""
+        if(this.state.postModal){
+            const {setPostImages, setPostText} = this.props
+            setPostImages([])
+            setPostText("")
+        }
         this.setState({
             postModal:!this.state.postModal
         })
-    }
+    };// toogle post modal
 
     
-   
-
-    async componentDidMount(){
-
-        const response = await fetch('http://diready.co/api/userpost?user_id=1');
-        const result = await response.json()
+    postSubmit = async ()=>{
+        const {postText, postImages,currentUser,setCurrentUser, setPostImages, setPostText} = this.props
+        console.log(postText, postImages)
+        if(postText.trim() === ""){
+            this.setState({
+                nothingToPost:true,
+                limitExceed:false
+            })
+            return
+        }
+        if(postImages.length > 5){
+            this.setState({
+                limitExceed:true,
+                nothingToPost:false
+            })
+            return
+        }
         this.setState({
-            posts:result.message,
-            postLikes:result.like,
-            loading:false
-        })  
-    }
+            limitExceed:false,
+            nothingToPost:false
+        })
+        var formData = new FormData()
+        formData.append('status',postText)
+        for(var i = 0;i<postImages.length;i++){
+            formData.append(`image${i+1}`,postImages[i])
+        }
+        axios.post(`https://friendsfeed.herokuapp.com/api/users/post`,formData,{
+            headers:{
+                'Authorization':`${currentUser.token_type} ${currentUser.access_token}`,
+                'Content-Type':'multipart/form-data'
+            },
+        }).then(res=>{
+            this.togglePostModal()
+            setPostImages([])
+            setPostText("")
+            this.setState({
+                snackbar:true
+            })
+        }).catch(err=>{
+            if(err.response.status === 401){
+                setCurrentUser(null)
+            }
+        })
+
+    };// end submission post
+    handleSnackbarClose = ()=>{
+        this.setState({
+            snackbar:false
+        })
+    };// end snackbar close
+
+    
+    async componentDidMount(){
+        const {currentUser,setCurrentUser } = this.props
+        axios.get(`https://friendsfeed.herokuapp.com/api/users/get`,{headers:{
+            'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
+        }}).then(res=>{
+            console.log(res.data)
+        }).catch(error=>{
+            if(error.response.status === 401){
+                    setCurrentUser(null)
+            }
+            else{
+                this.setState({noPosts:true,loading:false})
+            }
+        })
+    };// end Componentdidmount
+
+   
 
     render(){
         return(
             <div>
                 <Header active="home" />
+                <Snackbar open={this.state.snackbar} autoHideDuration={2000} onClose={this.handleSnackbarClose}>
+                    <Alert onClose={this.handleSnackbarClose} severity="success">
+                        Successfully Posted.
+                    </Alert>
+                </Snackbar>        
                 <div className="forCards">
                     {
                         this.state.loading ? (
@@ -65,6 +145,9 @@ class HomePage extends React.Component{
                                         />
                                     ))
                                 }
+                                {
+                                    this.state.noPosts?(<Typography align="center" variant="h2">No posts to show</Typography>):(null)
+                                }
                                 
                             </div>
                         )
@@ -78,12 +161,27 @@ class HomePage extends React.Component{
                     }} />
                 </Fab>
                 </div>
-                <MDBPostModal body={(<TextareaEmojiPicker />)} open={this.state.postModal} title="Create Post" close={this.togglePostModal} />
+                <MDBPostModal nothingToPost={this.state.nothingToPost} submit={this.postSubmit}
+                 body={(<TextareaEmojiPicker />)} open={this.state.postModal} title="Create Post"
+                limitExceed={this.state.limitExceed} close={this.togglePostModal} />
             </div>
         )
     }
 };
 
-export default HomePage
+const mapStateToProps= (state)=>({
+    currentUser:state.user.currentUser,
+    postText : state.postImages.postText,
+    postImages : state.postImages.postImages,
+})
+
+const mapDispatchToProps = dispatch =>({
+    setCurrentUser : user => dispatch(setCurrentUser(user)),
+    setPostImages : images =>dispatch(postActions.setPostImages(images)),
+    setPostText : text => dispatch(postActions.setPostText(text))
+})
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage)
 
 

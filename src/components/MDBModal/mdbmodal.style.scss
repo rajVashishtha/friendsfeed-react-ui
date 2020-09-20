@@ -12,13 +12,17 @@
 }
 .mdb_modal_footer{
     display: flex !important;
-    width: auto !important;
-    justify-content: flex-end !important;
-    flex-direction: row !important;
+    width: 100% !important;
+    align-items: flex-end !important;
+    flex-direction: column !important;
     padding-bottom: 10px !important;
-
     &:last-child{
-        margin-right: 10px !important;
+        padding-right: 10px !important;
+    }
+    div{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
     }
    
 }

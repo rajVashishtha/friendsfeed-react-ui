@@ -10,6 +10,11 @@ import axios from 'axios'
 import {setCurrentUser }from '../../redux/user/user.action'
 import { withRouter } from 'react-router-dom'
 import Loader from 'react-loader-spinner'
+import {Snackbar} from '@material-ui/core'
+import MuiAlert from '@material-ui/lab/Alert';
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 class ForgotPasswordPage extends React.Component{
     state={
@@ -23,7 +28,8 @@ class ForgotPasswordPage extends React.Component{
         invalid:false,
         invalidEmail:false,
         invalidOTP:false,
-        loader:false
+        loader:false,
+        snackbar:false
     }
     componentDidMount(){
         const {currentUser} = this.props
@@ -92,6 +98,11 @@ class ForgotPasswordPage extends React.Component{
             invalid:false
         })
         return true
+    };
+    handleSnackbarClose = ()=>{
+        const {setCurrentUser,history} = this.props
+        setCurrentUser(null)
+        history.push("/")
     }
     handleSubmit = (e)=>{
         e.preventDefault()
@@ -104,9 +115,10 @@ class ForgotPasswordPage extends React.Component{
         const {email, otp, password} = this.state;
         const data = {email:email,otp:otp,password:password};
         axios.post('https://friendsfeed.herokuapp.com/api/users/resetPassword',data).then(response=>{
-            const {setCurrentUser,history} = this.props
-            setCurrentUser(null)
-            history.push("/")
+            this.setState({
+                snackbar:true,
+                loader:false
+            })
         }).catch(error=>{
             this.setState({
                 invalid:false,
@@ -207,7 +219,11 @@ class ForgotPasswordPage extends React.Component{
                     )
                 }
                 </div>
-                
+                <Snackbar open={this.state.snackbar} autoHideDuration={3000} onClose={this.handleSnackbarClose}>
+                    <Alert onClose={this.handleSnackbarClose} severity="success">
+                        OTP Verified! Redirecting to login page...
+                    </Alert>
+                </Snackbar>  
             </div>
         )
     }

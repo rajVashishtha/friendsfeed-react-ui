@@ -26,13 +26,15 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-loader-spinner": "^3.1.14",
+    "react-material-ui-carousel": "^1.8.3",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
     "react-swipeable-views": "^0.13.9",
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
-    "shave": "^2.5.9"
+    "shave": "^2.5.9",
+    "uikit": "^3.5.7"
   },
   "scripts": {
     "start": "react-scripts start",
