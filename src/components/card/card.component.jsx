@@ -114,7 +114,6 @@ class PostCard extends React.Component {
 }
   componentDidMount(){
     const { post = "default", currentUser, userId} = this.props
-    console.log(currentUser, userId)
     this.setState({
       liked : this.props.liked,
       items: currentUser.user[0].id === userId?([{
@@ -184,8 +183,9 @@ class PostCard extends React.Component {
                indicators={real_post_images.length > 1}
                >
               {
-                real_post_images.map(item=>
+                real_post_images.map((item,index)=>
                   <CardMedia
+                  key={`post-media-${postId}-${index}`}
                   className={classes.media}
                   image={item}
                   title={"media"}
