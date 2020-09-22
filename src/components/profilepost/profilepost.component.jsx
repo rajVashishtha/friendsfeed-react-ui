@@ -7,6 +7,7 @@ import { setCurrentUser } from '../../redux/user/user.action'
 import moment from 'moment'
 import BottomScrollListener from 'react-bottom-scroll-listener';
 import Loader from 'react-loader-spinner'
+import { Typography } from '@material-ui/core'
 
 const LoadingPost = ()=>{
     return(
@@ -39,7 +40,10 @@ class ProfilePost extends React.Component{
     UploadsValue = ({result, loader})=>{
         const posts = result
         return(
-            <div style={{marginBottom:"30px"}}>
+            <div>
+            {
+                posts.length === 0?(<Typography align="center" variant="h2">No posts to show</Typography>):(null)
+            }
             {
                 posts.map((item, index)=>(
                     <PostCard style={index > 0 ? ({
@@ -111,10 +115,11 @@ class ProfilePost extends React.Component{
             });//set state end
             
         }).catch(err=>{
-            if(err.response.status === 401){
+            if(err.response && err.response.status === 401){
                 setCurrentUser(null)
                 return
             }
+            console.log("error -->",err)
         })
     };// end callNextSelfPost
     
@@ -127,6 +132,7 @@ class ProfilePost extends React.Component{
                 'authorization':`${currentUser.token_type} ${currentUser.access_token}`
             }
         }).then(res=>{
+            console.log(res.data)
             this.setState({
                 items:[
                     {
@@ -151,8 +157,31 @@ class ProfilePost extends React.Component{
             });// setState end
             
         }).catch(err=>{
-            if(err.response.status === 401){
+            if(err.response && err.response.status === 401){
                 setCurrentUser(null)
+            }
+            if(err.response && err.response.status === 404){
+                this.setState({
+                    items:[
+                        {
+                            text:"Uploads",
+                            value:(<BottomScrollListener onBottom={this.callNextSelfPosts}>
+                                {
+                                    scrollRef=>(
+                                        <this.UploadsValue ref={scrollRef} result={[]} loader={this.state.selfPostApiLoader} />
+                                    )
+                                }
+                            </BottomScrollListener>),
+                            likes:[]
+                        },
+                        {
+                            text:"Tags",
+                            value:(<LoadingPost />),
+                            likes:[]
+                        }
+                    ],
+                    selfPostAPI:null
+                })
             }
         });// end api call
 
@@ -165,10 +194,10 @@ class ProfilePost extends React.Component{
 
 
     render(){
-        return (<div>
-                    <FrontTabs items={this.state.items} width="100%" />
-        </div>
-
+        return (
+            <div>
+                <FrontTabs items={this.state.items} width="700px" />
+            </div>
         )
     }
 }

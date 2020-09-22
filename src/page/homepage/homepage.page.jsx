@@ -13,6 +13,7 @@ import { Typography } from '@material-ui/core';
 import postActions from '../../redux/post images/post.action'
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import moment from 'moment';
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} style={{backgroundColor:"#71ef5e"}} />;
 }
@@ -100,9 +101,12 @@ class HomePage extends React.Component{
         axios.get(`https://friendsfeed.herokuapp.com/api/users/get`,{headers:{
             'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
         }}).then(res=>{
-            console.log(res.data)
+            this.setState({
+                posts:res.data.message,
+                loading:false
+            })
         }).catch(error=>{
-            if(error.response.status === 401){
+            if(error.response && error.response.status === 401){
                     setCurrentUser(null)
             }
             else{
@@ -138,10 +142,14 @@ class HomePage extends React.Component{
                                         <PostCard style={index > 0 ? ({
                                             marginTop:"40px"
                                             
-                                        }):({})} key={index} loading={this.state.loading} liked={Boolean(this.state.postLikes[index].status === "True" ? 1 : 0)} 
-                                        postId={item.post_id}
-                                        post={item.post} userId={item.user_id} media={item.post_image}
+                                        }):({})} key={`self-post-${index}`}
+                                        loading={false} user={item.user[0]} 
+                                        post_images={[item.post_image1, item.post_image2, item.post_image3, item.post_image4, item.post_image5]}
+                                        liked={Boolean(item.liked)} 
+                                        postId={item.id}
+                                        post={item.post} userId={item.user_id}
                                         likes={item.likes_count} comments={item.comments_count}
+                                        createdAt = {moment(item.created_at)}
                                         />
                                     ))
                                 }
