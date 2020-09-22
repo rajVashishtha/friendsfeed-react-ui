@@ -143,7 +143,7 @@ class HomePage extends React.Component{
                                             marginTop:"40px"
                                             
                                         }):({})} key={`self-post-${index}`}
-                                        loading={false} user={item.user[0]} 
+                                        loading={false} user={item.user} 
                                         post_images={[item.post_image1, item.post_image2, item.post_image3, item.post_image4, item.post_image5]}
                                         liked={Boolean(item.liked)} 
                                         postId={item.id}
