@@ -90,12 +90,16 @@ class SignIn extends React.Component{
         console.log("this->",result)
         this.setState({
             loading:false
-        })
+        });
         if(!this.validateResult(result)){
             setCurrentUser(null)
             return
         }
         setCurrentUser(result.message[0])
+        
+        this.props.history.push("/home")
+    };
+    componentWillUnmount(){
         this.setState({
             email:"",
             password:"",
@@ -104,9 +108,8 @@ class SignIn extends React.Component{
             wrongPassword:false,
             invalidForm:false,
             showPassword:false
-        })
-        this.props.history.push("/home")
-    };
+        });
+    }
     handleClickShowPassword = () =>{
         this.setState({
             showPassword: !this.state.showPassword
@@ -209,6 +212,6 @@ class SignIn extends React.Component{
 
 const mapDispatchToProps = dispatch =>({
     setCurrentUser : user => dispatch(setCurrentUser(user))
-  })
+});
 
 export default connect(null, mapDispatchToProps)(withStyles(useStyles)(withRouter(SignIn)))

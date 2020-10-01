@@ -14,6 +14,8 @@ import postActions from '../../redux/post images/post.action'
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import moment from 'moment';
+import BottomScrollListener from 'react-bottom-scroll-listener';
+import Loader from 'react-loader-spinner';
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} style={{backgroundColor:"#71ef5e"}} />;
 }
@@ -29,7 +31,10 @@ class HomePage extends React.Component{
         noPosts:false,
         nothingToPost:false,
         limitExceed:false,
-        snackbar:false
+        snackbar:false,
+        newPostAPI:"https://friendsfeed.herokuapp.com/api/users/get",
+        noMorePosts:false,
+        morePostsLoader:false
     }
     togglePostModal = ()=>{
         document.body.className = ""
@@ -95,16 +100,45 @@ class HomePage extends React.Component{
         })
     };// end snackbar close
 
+    fetchMorePosts = ()=>{
+        const {currentUser,setCurrentUser } = this.props
+        const {newPostAPI} = this.state;
+        if(newPostAPI===null){
+            this.setState({noMorePosts:true,morePostsLoader:false});
+            return;
+        }
+        axios.get(newPostAPI,{headers:{
+            'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
+        }}).then(res=>{
+            const temp = res.data.message;
+            this.setState({
+                posts:[...this.state.posts, ...temp],
+                newPostAPI:res.data.links.next_page_url
+            })
+        }).catch(error=>{
+            if(error.response && error.response.status === 401){
+                    setCurrentUser(null)
+            }
+            else{
+                this.setState({noPosts:true,loading:false})
+            }
+        })
+    }
     
     async componentDidMount(){
         const {currentUser,setCurrentUser } = this.props
-        axios.get(`https://friendsfeed.herokuapp.com/api/users/get`,{headers:{
+        const {newPostAPI} = this.state;
+        axios.get(newPostAPI,{headers:{
             'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
         }}).then(res=>{
             this.setState({
                 posts:res.data.message,
-                loading:false
+                loading:false,
+                newPostAPI:res.data.links.next_page_url
             })
+            if(res.data.links.next_page_url !== null){
+                this.setState({morePostsLoader:true});
+            }
         }).catch(error=>{
             if(error.response && error.response.status === 401){
                     setCurrentUser(null)
@@ -136,6 +170,7 @@ class HomePage extends React.Component{
                                         }}/>
                             </div>
                         ):(
+                            <BottomScrollListener onBottom={this.fetchMorePosts}>
                             <div>
                                 {
                                     this.state.posts.map((item, index)=>(
@@ -156,8 +191,22 @@ class HomePage extends React.Component{
                                 {
                                     this.state.noPosts?(<Typography align="center" variant="h2">No posts to show</Typography>):(null)
                                 }
-                                
+                                {
+                                    this.state.noMorePosts?(<Typography align="center" variant="h4" style={{
+                                        marginTop:"30px",paddingBottom:"10px"
+                                    }}>No more posts</Typography>):(null)
+                                }
+                                <div style={{display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"center",marginTop:"30px"}}>
+                                    <Loader
+                                        type="Oval"
+                                        color="#71E35F"
+                                        height={80}
+                                        width={80}
+                                        visible={this.state.morePostsLoader} 
+                                    />
+                                </div> 
                             </div>
+                            </BottomScrollListener>
                         )
                     }
                 </div>
