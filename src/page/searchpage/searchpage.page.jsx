@@ -21,7 +21,6 @@ class SearchPage extends React.Component{
     }
     componentDidMount(){
         const {location, history, currentUser} = this.props;
-        console.log(location.state)
         if(location.state){
             console.log("searching");
             this.setState({
@@ -42,7 +41,6 @@ class SearchPage extends React.Component{
                     }
                 })
             }).catch(err=>{
-                console.log(err)
                 if(err.response && err.response.status === 401){
                     console.log("logout")
                 }else{
@@ -56,7 +54,6 @@ class SearchPage extends React.Component{
     componentDidUpdate(prev){
         const {location, history, currentUser} = this.props;
         const prevLocation = prev.location;
-        console.log(location.state.searchText, prevLocation.state.searchText);
         if(location.state.searchText !==  prevLocation.state.searchText){
             this.setState({
                 searchText:location.state.searchText,
@@ -135,7 +132,7 @@ class SearchPage extends React.Component{
                 {
                     this.state.noResult?(<Typography variant="h2" align="center">No search result found</Typography>):(null)
                 }
-                <BottomScrollListener onBottom={()=>{console.log("working")}}>
+                <BottomScrollListener onBottom={this.fetchMoreResults}>
                     <div>
                     {
                         this.state.results.map(item=>(

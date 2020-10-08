@@ -27,6 +27,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import CommentOutlinedIcon from '@material-ui/icons/CommentOutlined';
 import Carousel from 'react-material-ui-carousel'
 import {connect} from 'react-redux'
+import axios from "axios";
 
 
 
@@ -84,7 +85,9 @@ class PostCard extends React.Component {
       expand: false,
       loading: true,
       liked:true,
-      needExpand:false
+      needExpand:false,
+      likesCount:0,
+      commentsCount:0
     };//end state
   }
   expandCollapse = () => {
@@ -93,9 +96,32 @@ class PostCard extends React.Component {
     })
   }
   toggleLike = () =>{
+    const {postId, userId, currentUser} = this.props;
     this.setState({
-      liked : !this.state.liked
+      liked:!this.state.liked,
     })
+    axios.post(`https://friendsfeed.herokuapp.com/api/users/like`,{post_id:postId},{
+      headers:{
+        'authorization':`${currentUser.token_type} ${currentUser.access_token}`
+      }
+    }).then(res=>{
+      this.setState({
+        likesCount:res.data.message[0].likes_count,
+        commentsCount:res.data.message[0].comments_count
+      });
+    }).catch(err=>{
+        if(err.response && err.response.status === 401){
+          console.log("logOut");
+        }else{
+          setTimeout(()=>{
+            this.setState({
+              liked:!this.state.liked
+            });
+          },500)
+        }
+    });
+    
+    console.log(`toggle ${postId} of user ${userId}`);
   }
   cutPostData = (post) => {
     const count = post.length
@@ -111,11 +137,13 @@ class PostCard extends React.Component {
           cuttedPost:post
         })
       }  
-}
+  };
   componentDidMount(){
-    const { post = "default", currentUser, userId} = this.props
+    const { post = "default", currentUser, userId,likes, comments} = this.props
     this.setState({
       liked : this.props.liked,
+      likesCount:likes,
+      commentsCount:comments,
       items: currentUser.user[0].id === userId?([{
         text: "Report",
         icon: (<FlagOutlinedIcon />),
@@ -255,7 +283,7 @@ class PostCard extends React.Component {
               <IconButton aria-label="liked" onClick={this.toggleLike}>
                 {
                   this.state.liked ? (<StyledBadge
-                  badgeContent={likes}
+                  badgeContent={this.state.likesCount}
                   showZero={false}
                   max={999}
                   >
@@ -263,7 +291,7 @@ class PostCard extends React.Component {
                     
                   </StyledBadge>) :(
                   <StyledBadge
-                  badgeContent={likes}
+                  badgeContent={this.state.commentsCount}
                   showZero={false}
                   max={999}
                   >
