@@ -1,0 +1,14 @@
+.search-item-div{
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 30px;
+    .for-paper{
+        padding: 10px 20px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        
+    }
+}
