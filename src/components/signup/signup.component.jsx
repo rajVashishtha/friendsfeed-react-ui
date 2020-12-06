@@ -154,16 +154,15 @@ class SignUp extends React.Component{
             dob: moment(selectedDate).format("YYYY-MM-DD")
         }
         this.setState({loading:true},()=>{
-
             axios.post('https://friendsfeed.herokuapp.com/api/users/register', data).then(response=>{
             console.log(response)
             const {setCurrentUser, history} = this.props
                 
             this.resetState()
-                var t = {...response.data.message[0], active :0}
-                setCurrentUser(t)
-                history.push("/verify")
-                return
+            var t = {...response.data.message[0], active :0}
+            setCurrentUser(t)
+            history.push("/verify")
+            return
         },
         (error)=>{
                 this.setState({
@@ -355,7 +354,7 @@ class SignUp extends React.Component{
 
 const mapDispatchToProps = dispatch =>({
     setCurrentUser : user => dispatch(setCurrentUser(user))
-  })
+})
 
 
 export default connect(null,mapDispatchToProps)(withRouter(withStyles(myStyles, {withTheme:true})(SignUp)))

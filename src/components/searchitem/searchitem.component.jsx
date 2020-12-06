@@ -1,11 +1,12 @@
 import React from 'react';
 import {Paper, Typography, Avatar, Tooltip,IconButton} from '@material-ui/core';
 import CallMadeOutlinedIcon from '@material-ui/icons/CallMadeOutlined';
+import { withRouter, Link } from 'react-router-dom';
 
 
 class SearchItem extends React.Component{
     render(){
-        const {name, followers, followings, userName, profilePic} = this.props;
+        const {name, followers, followings, userName, profilePic, userId} = this.props;
         return(
             <div className="search-item-div">
                 <Paper elevation={2} className="for-paper" >
@@ -29,9 +30,14 @@ class SearchItem extends React.Component{
                         </div>
                         <div>
                             <Tooltip title="View Profile">
-                                <IconButton>
-                                    <CallMadeOutlinedIcon fontSize="large" />
-                                </IconButton>
+                                <Link to={{
+                                    pathname: "/profile",
+                                    state:{userId : userId}
+                                }}>
+                                    <IconButton>
+                                        <CallMadeOutlinedIcon fontSize="large" />
+                                    </IconButton>
+                                </Link>
                             </Tooltip>
                         </div>
                     </div>
@@ -42,4 +48,4 @@ class SearchItem extends React.Component{
     }
 };
 
-export default SearchItem;
+export default withRouter(SearchItem);

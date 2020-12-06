@@ -6,7 +6,7 @@ import PersonIcon from '@material-ui/icons/Person';
 class ProfileInfo extends React.Component{
 
     render(){
-
+        const {userName, Name, followers, followings, postsCount, Bio} = this.props;
         return(
             <div className="profileinfo_div">
                 <Avatar src="https://picsum.photos/200/300" className="profileinfo_div_avatar"/>
@@ -17,7 +17,7 @@ class ProfileInfo extends React.Component{
                             fontSize:"30px",
                             marginLeft:"20px"
                         }}>
-                            UserName
+                           {userName}
                         </Typography>
                         <IconButton style={{
                             paddingBottom:"10px",
@@ -28,22 +28,23 @@ class ProfileInfo extends React.Component{
                     </div>
                     <div className="profileinfo_div_bio_spandiv">
                         <span >
-                            <b>3</b> Following
+                            <b>{followings}</b> Following
                         </span>
                         <span >
-                            <b>4</b> Followers
+                            <b>{followers}</b> Followers
                         </span>
                         <span >
-                            <b>0</b> Posts
+                            <b>{postsCount}</b> Posts
                         </span>
                     </div>
                     <div className="profileinfo_div_bio_aboutbio">
                         <Typography variant="button" style={{
                             marginBottom:"5px"
                         }}>
-                            Raj Vashihst
+                            {Name }
                         </Typography>
                         <Typography variant="body1" component="pre">
+                            {Bio}
                             Er. Raj vashishtha<br />
                             Birthday<span role="img" aria-label="emoji">🎂🎉🎁</span> bash on feb five ✋<br />
                             Coding is life<br/>

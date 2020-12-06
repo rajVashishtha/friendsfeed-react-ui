@@ -49,7 +49,7 @@ const StyledListItemIcon = withStyles(theme=>({
   }
 }))(ListItemIcon)
 
-export default function CustomizedMenus({items, buttonIcon, iconStyle}) {
+export default function CustomizedMenus({items, buttonIcon, iconStyle, divStyle}) {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = event => {
@@ -61,7 +61,7 @@ export default function CustomizedMenus({items, buttonIcon, iconStyle}) {
   };
 
   return (
-    <div>
+    <div style={divStyle}>
       <IconButton onClick={handleClick}>
         {/* <ArrowDropDownIcon /> */}
         {buttonIcon}

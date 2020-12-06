@@ -137,7 +137,7 @@ class SearchPage extends React.Component{
                     {
                         this.state.results.map(item=>(
                             <SearchItem name={item.name} userName={item.username} followers={item.followers}
-                            followings={item.following} profilePic={item.profileImage}
+                            followings={item.following} profilePic={item.profileImage} userId={item.id}
                             />
                         ))
                     }

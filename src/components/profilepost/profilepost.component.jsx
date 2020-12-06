@@ -8,6 +8,7 @@ import moment from 'moment'
 import BottomScrollListener from 'react-bottom-scroll-listener';
 import Loader from 'react-loader-spinner'
 import { Typography } from '@material-ui/core'
+import {withRouter} from 'react-router-dom'
 
 const LoadingPost = ()=>{
     return(
@@ -34,7 +35,8 @@ class ProfilePost extends React.Component{
         ],
         selfPostAPI:`https://friendsfeed.herokuapp.com/api/users/myPosts`,
         initailPosts:[],
-        selfPostApiLoader:false
+        selfPostApiLoader:false,
+        userId:null
     };
     
     UploadsValue = ({result, loader})=>{
@@ -122,11 +124,9 @@ class ProfilePost extends React.Component{
             console.log("error -->",err)
         })
     };// end callNextSelfPost
-    
-   
-    async componentDidMount(){
-        const {currentUser,setCurrentUser} = this.props
 
+    postAPICall = ()=>{
+        const {currentUser,setCurrentUser} = this.props
         axios.get(this.state.selfPostAPI,{
             headers:{
                 'authorization':`${currentUser.token_type} ${currentUser.access_token}`
@@ -183,10 +183,46 @@ class ProfilePost extends React.Component{
                     selfPostAPI:null
                 })
             }
-        });// end api call
-
-
+        });
+    };//end function
+    
+   
+    async componentDidMount(){
+        const {currentUser, userId} = this.props
+        this.setState({
+            userId:userId,
+        },()=>{
+            if(this.state.userId && this.state.userId !== currentUser.user[0].id){
+                this.setState({
+                    selfPostAPI:`https://friendsfeed.herokuapp.com/api/users/userPosts?user_id=${this.state.userId}`
+                },()=>{
+                    this.postAPICall();
+                });
+            }else{
+                this.setState({
+                    selfPostAPI:`https://friendsfeed.herokuapp.com/api/users/myPosts`
+                },()=>{this.postAPICall()});
+            }
+        });
+        
     };// end componentDidMount
+    componentDidUpdate(prevProps, prevState){
+        console.log(prevState, this.state);
+        if(this.state.userId !== prevState.userId){
+            const {currentUser} = this.props
+            if(this.state.userId && this.state.userId !== currentUser.user[0].id){
+                this.setState({
+                    selfPostAPI:`https://friendsfeed.herokuapp.com/api/users/userPosts?user_id=${this.state.userId}`
+                },()=>{
+                    this.postAPICall();
+                });
+            }else{
+                this.setState({
+                    selfPostAPI:`https://friendsfeed.herokuapp.com/api/users/myPosts`
+                },()=>{this.postAPICall()});
+            }
+        }
+    }
 
 
     componentWillUnmount(){
@@ -209,4 +245,4 @@ const mapStateToProps = (state)=>({
 const mapDispatchToProps = (dispatch)=>({
     setCurrentUser: user=> dispatch(setCurrentUser(user))
 });
-export default connect(mapStateToProps, mapDispatchToProps)(ProfilePost);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(ProfilePost));

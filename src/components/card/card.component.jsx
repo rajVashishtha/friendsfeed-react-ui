@@ -28,6 +28,7 @@ import CommentOutlinedIcon from '@material-ui/icons/CommentOutlined';
 import Carousel from 'react-material-ui-carousel'
 import {connect} from 'react-redux'
 import axios from "axios";
+import {withRouter} from 'react-router-dom';
 
 
 
@@ -96,7 +97,8 @@ class PostCard extends React.Component {
     })
   }
   toggleLike = () =>{
-    const {postId, userId, currentUser} = this.props;
+    const {postId, currentUser} = this.props;
+    console.log(postId)
     this.setState({
       liked:!this.state.liked,
     })
@@ -120,8 +122,6 @@ class PostCard extends React.Component {
           },500)
         }
     });
-    
-    console.log(`toggle ${postId} of user ${userId}`);
   }
   cutPostData = (post) => {
     const count = post.length
@@ -170,6 +170,15 @@ class PostCard extends React.Component {
       }])
     })
     this.cutPostData(post)    
+  }
+  redirectToComments = event =>{
+    const { style, classes, loading,user,post, postId, likes, comments, post_images=[], userId, history } = this.props;
+    history.push({
+      pathname:"/comments",
+      customData:{
+        style,classes, loading,user, postId, likes, comments, post_images, userId,post
+      }
+    });
   }
   render() {
     const { style, classes, loading,user, postId, likes, comments, post_images=[], userId } = this.props;
@@ -301,7 +310,7 @@ class PostCard extends React.Component {
               </IconButton>
               <IconButton aria-label="share" style={{
                 marginLeft:24
-              }}>
+              }} onClick={this.redirectToComments}>
                 <StyledBadge
                   badgeContent={comments}
                   max={999}
@@ -323,4 +332,4 @@ const mapStateToProps = state=>({
   currentUser: state.user.currentUser
 })
 
-export default connect(mapStateToProps)(withStyles(useStyles)(PostCard))
+export default connect(mapStateToProps)(withRouter(withStyles(useStyles)(PostCard)))
