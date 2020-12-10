@@ -15,8 +15,9 @@ import {SendOutlined} from '@material-ui/icons'
 
 class CommentsPage extends React.Component{
     state={
-        user_id:1,
-        post_id:1,
+        userId:1,
+        postId:1,
+        liked:false,
         comment:"",
         rows:2,
         allComments:[],
@@ -89,19 +90,21 @@ class CommentsPage extends React.Component{
         axios.post("https://friendsfeed.herokuapp.com/api/users/post/comments",{
             post_id:customData.postId,
             comment:this.state.comment,
-            post_user_id:customData.user.id
+            post_user_id:this.state.userId
         },{
             headers:{
                 'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
             }
         })
         .then(res=>{
-            this.setState({
-                submitting:false,
-                allComments:res.data.message,
-                nextPageURL:res.data.links.next_page_url,
-                comment:"",
-                comments_count:res.data.comments_count
+            this.setState({allComments:[]},()=>{
+                this.setState({
+                    submitting:false,
+                    allComments:res.data.message,
+                    nextPageURL:res.data.links.next_page_url,
+                    comment:"",
+                    comments_count:res.data.comments_count
+                })
             })
         }).catch(err=>{
             console.log(err)
@@ -124,7 +127,6 @@ class CommentsPage extends React.Component{
             }
         })
         .then(res=>{
-            console.log(res);
             this.setState({allComments:["no_comments"]},()=>{this.setState({
                 nextPageURL:res.data.links.next_page_url,
                 allComments:res.data.message,
