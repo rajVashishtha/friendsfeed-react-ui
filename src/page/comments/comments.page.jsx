@@ -19,21 +19,39 @@ class CommentsPage extends React.Component{
         post_id:1,
         comment:"",
         rows:2,
-        allComments:[]
+        allComments:[],
+        submitting:false,
+        nextPageURL:"",
+        comments_count:0,
+        recievedData:null
     }
     componentDidMount(){
         const {currentUser} = this.props;
-        const {customData} = this.props.location;
         this.textarea.focus();
         autosize(this.textarea);
-        if(customData){
-            axios.get(`https://friendsfeed.herokuapp.com/api/users/post/comments?post_id=${customData.postId}`,{
+        if(this.props.location.customData){
+            this.setState({
+                allComments:[],
+                comments_count:this.props.location.customData.comments,
+                likes_count :this.props.location.customData.likes,
+                postId:this.props.location.customData.postId,
+                liked:this.props.location.customData.liked,
+                postImages:this.props.location.customData.post_images,
+                userId:this.props.location.customData.userId,
+                post:this.props.location.customData.post
+            });
+            axios.get(`https://friendsfeed.herokuapp.com/api/users/post/comments?post_id=${this.props.location.customData.postId}`,{
                 headers:{
                     'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
                 }
             })
             .then(res=>{
-
+                console.log(res.data.likes_count)
+                this.setState({
+                    nextPageURL:res.data.links.next_page_url,
+                    allComments:res.data.message,
+                    comments_count:res.data.comments_count
+                })
             }).catch(err=>{
                 if(err.response.status === 401){
                     setCurrentUser(null)
@@ -53,10 +71,78 @@ class CommentsPage extends React.Component{
     handleKeyPress = e =>{
         if(e.nativeEvent.keyCode === 13){
             if(e.nativeEvent.shiftKey){
-                console.log("shift + enter")
+                this.handleSubmitComment();
             }
         }
     }
+
+    handleSubmitComment = event =>{
+        if(this.state.comment.trim() === ""){
+            return
+        }
+        const {currentUser}  = this.props;
+        const {customData} = this.props.location;
+        console.log(this.state.comment);
+        this.setState({
+            submitting:true
+        });
+        axios.post("https://friendsfeed.herokuapp.com/api/users/post/comments",{
+            post_id:customData.postId,
+            comment:this.state.comment,
+            post_user_id:customData.user.id
+        },{
+            headers:{
+                'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
+            }
+        })
+        .then(res=>{
+            this.setState({
+                submitting:false,
+                allComments:res.data.message,
+                nextPageURL:res.data.links.next_page_url,
+                comment:"",
+                comments_count:res.data.comments_count
+            })
+        }).catch(err=>{
+            console.log(err)
+            if(err.response.status === 401){
+                setCurrentUser(null)
+            }
+            else{
+                this.setState({
+                    allComments:["no_comments"]
+                })
+            }
+        })
+    }
+
+    deleteComment = (commentId, commentingId) => {
+        const {setCurrentUser, currentUser} = this.props;
+        axios.delete(`https://friendsfeed.herokuapp.com/api/users/post/comments?comment_id=${commentId}&post_id=${this.state.postId}&post_user_id=${commentingId}`,{
+            headers:{
+                'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
+            }
+        })
+        .then(res=>{
+            console.log(res);
+            this.setState({allComments:["no_comments"]},()=>{this.setState({
+                nextPageURL:res.data.links.next_page_url,
+                allComments:res.data.message,
+                comments_count:res.data.comments_count
+            })});
+            
+        }).catch(err=>{
+            console.log("error", err)
+            this.setState({
+                allComments:["no_comments"]
+            })
+            if(err.response.status === 401){
+                setCurrentUser(null)
+            }
+        })
+    }
+
+
     render(){
         const {customData} = this.props.location;
         if(!customData){this.props.history.push("/home");
@@ -72,20 +158,13 @@ class CommentsPage extends React.Component{
                     liked={Boolean(customData.liked)} 
                     postId={customData.postId}
                     post={customData.post} userId={customData.userId}
-                    likes={customData.likes_count} comments={customData.comments_count}
+                    likes={customData.likes} comments={this.state.comments_count}
                     createdAt = {moment(customData.created_at)}
                     />
                     <div>
                         <div style={{width:500, marginLeft:"auto",marginRight:"auto",marginTop:"20px"}}>
                             <FormGroup >
                                 <InputGroup>
-                                    <InputGroup.Append>
-                                        <InputGroup.Text>
-                                            <IconButton>
-                                                <SendOutlined />
-                                            </IconButton>
-                                        </InputGroup.Text>
-                                    </InputGroup.Append>
                                     <Form.Control
                                         type="text"
                                         name="comment"
@@ -94,19 +173,42 @@ class CommentsPage extends React.Component{
                                         placeholder="Write your comment"
                                         aria-describedby="commentBlock"
                                         rows={this.state.rows}
-                                        value={this.state.textarea}
+                                        value={this.state.comment}
                                         onChange={this.handleCommentTextarea}
                                         onKeyPress={this.handleKeyPress}
                                         style={{maxHeight:"150px",minHeight:"30px"}}
                                         ref={c => (this.textarea = c)}
                                     />
+                                    <InputGroup.Prepend>
+                                    {
+                                        this.state.submitting?(
+                                            <Loader
+                                                type="Rings"
+                                                color="#71E35F"
+                                                height={60}
+                                                width={60}
+                                                visible={true} 
+                                            />
+                                        ):(
+                                        <IconButton onClick={this.handleSubmitComment}>
+                                            <SendOutlined />
+                                        </IconButton>
+                                        )
+                                    }
+                                    </InputGroup.Prepend>
                                 </InputGroup>
                             </FormGroup>
                         </div>
                         <div style={{width:500, marginLeft:"auto",marginRight:"auto",marginTop:"20px"}}>
                         {
                             this.state.allComments.length?(
-                                this.state.allComments.map(item=>(item !=="no_comments"?<CommentCard />:<h2 className="text-muted" align="center">No comments</h2>))
+                                this.state.allComments.map(item=>(item !=="no_comments"?(
+                                <CommentCard commentId={item.comment_id} userId={item.user_id} 
+                                    name={item.name} username={item.username} profilePicture={item.profile_picture}
+                                    comment={item.comment} postId={customData.postId} createdAt={moment(item.created_at).fromNow()}
+                                    onCommentDelete={this.deleteComment}
+                                />
+                                ):<h2 className="text-muted" align="center">No comments</h2>))
                             ):(
                                 <div style={{textAlign:"center"}}>
                                     <Loader

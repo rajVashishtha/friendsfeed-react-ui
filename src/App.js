@@ -11,6 +11,9 @@ import VerificationPage from './page/verificationpage/verification.page';
 import ForgotPasswordPage from './page/forgotpasswordpage/forgotpassword.page';
 import SearchPage from './page/searchpage/searchpage.page';
 import CommentsPage from './page/comments/comments.page';
+import SimpleReactLightbox from "simple-react-lightbox";
+
+
 
 class App extends React.Component{
 
@@ -18,22 +21,24 @@ class App extends React.Component{
   render(){
     const { currentUser} = this.props
     return(
-      <Switch>
-        <Route exact path="/" render={props=>
-          currentUser===null ? (<FrontPage {...props} />):(currentUser.active === 0?(<Redirect to={{
-            pathname:"/verify"
-          }} />):(<Redirect to={{
-            pathname:"/Home"
-          }} />))
-        }></Route>
-        <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/Home" component={HomePage}></PrivateRoute>
-        <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/profile" component={ProfilePage}></PrivateRoute>
-        <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/message" component={MessagePage}></PrivateRoute>
-        <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/search" component={SearchPage}></PrivateRoute>
-        <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/comments" component={CommentsPage}></PrivateRoute>
-        <Route exact path="/verify" component={VerificationPage}></Route>
-        <Route exact path="/recover-password" component={ForgotPasswordPage}></Route>
-      </Switch>
+      <SimpleReactLightbox>
+        <Switch>
+          <Route exact path="/" render={props=>
+            currentUser===null ? (<FrontPage {...props} />):(currentUser.active === 0?(<Redirect to={{
+              pathname:"/verify"
+            }} />):(<Redirect to={{
+              pathname:"/Home"
+            }} />))
+          }></Route>
+          <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/Home" component={HomePage}></PrivateRoute>
+          <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/profile" component={ProfilePage}></PrivateRoute>
+          <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/message" component={MessagePage}></PrivateRoute>
+          <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/search" component={SearchPage}></PrivateRoute>
+          <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/comments" component={CommentsPage}></PrivateRoute>
+          <Route exact path="/verify" component={VerificationPage}></Route>
+          <Route exact path="/recover-password" component={ForgotPasswordPage}></Route>
+        </Switch>
+      </SimpleReactLightbox>
     )
   }
 }

@@ -16,7 +16,7 @@ class MDBPostModal extends Component {
       const {open, title, close, body, submit, nothingToPost, limitExceed} = this.props
       const {postButton} = this.props
     return (
-        <MDBModal isOpen={open} toggle={close} className="mdb_modal">
+        <MDBModal isOpen={open} className="mdb_modal">
           <MDBModalHeader toggle={close}>{title}</MDBModalHeader>
           <MDBModalBody>
             {body}

@@ -37,6 +37,7 @@
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "shave": "^2.5.9",
+    "simple-react-lightbox": "^3.3.4-2",
     "uikit": "^3.5.7"
   },
   "scripts": {

@@ -29,8 +29,10 @@ import Carousel from 'react-material-ui-carousel'
 import {connect} from 'react-redux'
 import axios from "axios";
 import {withRouter} from 'react-router-dom';
+import LightBox from "../lightbox/lightbox.component";
+import { useLightbox } from 'simple-react-lightbox'
 
-
+// const { openLightbox } = useLightbox();
 
 
 const useStyles = theme => ({
@@ -50,9 +52,6 @@ const useStyles = theme => ({
     transition: theme.transitions.create("transform", {
       duration: theme.transitions.duration.shortest
     })
-  },
-  avatar: {
-    backgroundColor: red[500]
   },
   forIcon:{
     color :"#71e35f"
@@ -97,12 +96,11 @@ class PostCard extends React.Component {
     })
   }
   toggleLike = () =>{
-    const {postId, currentUser} = this.props;
-    console.log(postId)
+    const {postId, currentUser,user} = this.props;
     this.setState({
       liked:!this.state.liked,
     })
-    axios.post(`https://friendsfeed.herokuapp.com/api/users/like`,{post_id:postId},{
+    axios.post(`https://friendsfeed.herokuapp.com/api/users/like`,{post_id:postId, post_user_id:user.id},{
       headers:{
         'authorization':`${currentUser.token_type} ${currentUser.access_token}`
       }
@@ -172,23 +170,27 @@ class PostCard extends React.Component {
     this.cutPostData(post)    
   }
   redirectToComments = event =>{
-    const { style, classes, loading,user,post, postId, likes, comments, post_images=[], userId, history } = this.props;
+    const { style, classes, loading,user,post, postId, post_images=[], userId, history } = this.props;
     history.push({
       pathname:"/comments",
       customData:{
-        style,classes, loading,user, postId, likes, comments, post_images, userId,post
+        style,classes, loading,user, postId,
+        liked:this.state.liked,
+         likes:this.state.likesCount, 
+         comments:this.state.commentsCount, 
+         post_images, userId,post
       }
     });
   }
   render() {
-    const { style, classes, loading,user, postId, likes, comments, post_images=[], userId } = this.props;
+    const { style, classes, loading,user, postId, comments, post_images=[] } = this.props;
     const real_post_images = post_images.filter(item=>item!==null)
     return (
       <Card className={classes.root} style={style} elevation={1} variant="outlined">
         <CardHeader
           avatar={
             loading ? (<Skeleton animation="wave" variant="circle" width={40} height={40} />) :
-              (<Avatar aria-label="recipe" className={classes.avatar} />)}
+              (<Avatar aria-label={user.name}/>)}
           action={
             loading ? (null) : (
               <CustomizedMenus buttonIcon={(<MoreVertIcon />)} items={this.state.items} iconStyle={{
@@ -215,7 +217,9 @@ class PostCard extends React.Component {
           loading ? (
             <Skeleton animation="wave" variant="rect" className={classes.media} />
           ) : (
-              real_post_images.length === 0 ? (null):(<Carousel autoPlay={false}
+              real_post_images.length === 0 ? (null):(
+              <div onClick={()=>{console.log("clicking")}}>
+              <Carousel autoPlay={false}
                animation="slide" navButtonsAlwaysInvisible={real_post_images.length === 1}
                indicators={real_post_images.length > 1}
                >
@@ -229,7 +233,9 @@ class PostCard extends React.Component {
                   />
                 )
               }
-            </Carousel>)
+            </Carousel>
+            </div>
+            )
               
             )
         }
@@ -244,9 +250,6 @@ class PostCard extends React.Component {
               </React.Fragment>
             ) : (
                 <div>
-                  <Typography variant="h5" style={{ marginBottom: "10px" }}>
-                    Title
-                   </Typography>
                    <Collapse in={!this.state.expand} timeout="auto" unmountOnExit>
                     <Typography variant="body2" color="textPrimary" component="p">
                       {this.state.cuttedPost}
@@ -300,7 +303,7 @@ class PostCard extends React.Component {
                     
                   </StyledBadge>) :(
                   <StyledBadge
-                  badgeContent={this.state.commentsCount}
+                  badgeContent={this.state.likesCount}
                   showZero={false}
                   max={999}
                   >
@@ -321,7 +324,7 @@ class PostCard extends React.Component {
             </StyledCardActions>
           )
         }
-
+      <LightBox />
       </Card>
     )
 
