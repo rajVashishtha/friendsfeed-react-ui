@@ -11,7 +11,6 @@ import Collapse from "@material-ui/core/Collapse";
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
-import { red } from "@material-ui/core/colors";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import MoreVertIcon from "@material-ui/icons/MoreVert";
@@ -30,7 +29,6 @@ import {connect} from 'react-redux'
 import axios from "axios";
 import {withRouter} from 'react-router-dom';
 import LightBox from "../lightbox/lightbox.component";
-import { useLightbox } from 'simple-react-lightbox'
 
 // const { openLightbox } = useLightbox();
 
@@ -169,10 +167,20 @@ class PostCard extends React.Component {
     })
     this.cutPostData(post)    
   }
+  componentDidUpdate(prevProps){
+    if((prevProps.liked !== this.props.liked) || (prevProps.likes!== this.props.likes)){
+      this.setState({
+        liked:this.props.liked,
+        likesCount:this.props.likes
+      })
+    }
+  }
   redirectToComments = event =>{
-    const { style, classes, loading,user,post, postId, post_images=[], userId, history } = this.props;
+    const { style, classes, loading,user,post, postId, post_images=[], userId, history,location } = this.props;
     history.push({
-      pathname:"/comments",
+      pathname:"/post",
+      search:`?id=${postId}`,
+      from:location,
       customData:{
         style,classes, loading,user, postId,
         liked:this.state.liked,
@@ -294,7 +302,7 @@ class PostCard extends React.Component {
             <StyledCardActions disableSpacing={true}>
               <IconButton aria-label="liked" onClick={this.toggleLike}>
                 {
-                  this.state.liked ? (<StyledBadge
+                  (this.state.liked) ? (<StyledBadge
                   badgeContent={this.state.likesCount}
                   showZero={false}
                   max={999}

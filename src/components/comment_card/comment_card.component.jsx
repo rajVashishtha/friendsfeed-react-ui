@@ -58,7 +58,7 @@ class CommentCard extends React.Component{
                         <Typography>{name}</Typography>
                         <small className="text-muted" style={{display:"block"}}>@{username}</small>
                     </Grid>
-                    <Grid item xs={2} direction="row-reverse">
+                    <Grid item xs={2}>
                         <CustomizedMenus buttonIcon={(<MoreVertOutlined />)} items={this.state.items} divStyle={{
                             float:"right"
                         }} />

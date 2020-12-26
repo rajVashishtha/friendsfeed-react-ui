@@ -11,47 +11,74 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import {setCurrentUser} from '../../redux/user/user.action';
 import { IconButton } from '@material-ui/core';
-import {SendOutlined} from '@material-ui/icons'
+import {SendOutlined} from '@material-ui/icons';
+import queryString from 'query-string';
 
-class CommentsPage extends React.Component{
+class PostPage extends React.Component{
     state={
         userId:1,
         postId:1,
-        liked:false,
+        liked:1,
         comment:"",
         rows:2,
         allComments:[],
         submitting:false,
         nextPageURL:"",
         comments_count:0,
-        recievedData:null
+        likes_count:0,
+        recievedData:null,
+        postUser:null,
+        loading:true
     }
     componentDidMount(){
-        const {currentUser} = this.props;
+        const {currentUser,location} = this.props;
         this.textarea.focus();
         autosize(this.textarea);
-        if(this.props.location.customData){
+        const query = queryString.parse(location.search)
+        if(query  && query.id){
             this.setState({
                 allComments:[],
-                comments_count:this.props.location.customData.comments,
-                likes_count :this.props.location.customData.likes,
-                postId:this.props.location.customData.postId,
-                liked:this.props.location.customData.liked,
-                postImages:this.props.location.customData.post_images,
-                userId:this.props.location.customData.userId,
-                post:this.props.location.customData.post
             });
-            axios.get(`https://friendsfeed.herokuapp.com/api/users/post/comments?post_id=${this.props.location.customData.postId}`,{
+            axios.get(`https://friendsfeed.herokuapp.com/api/users/post/${query.id}`,{
+                headers:{
+                    'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
+                }
+            }).then(res=>{
+                const data = res.data.message[0];
+                const post_images = [];
+                for(let i = 1;i<=5;i++){
+                    post_images.push(data[`post_image${i}`])
+                }
+                this.setState({
+                    comments_count:data.comments_count,
+                    likes_count:data.likes_count,
+                    post_images:post_images,
+                    liked:data.liked,
+                    userId:data.user_id,
+                    postUser:data.user,
+                    postId:data.id,
+                    loading:false,
+                    post:data.post
+                });
+            }).catch(err=>{
+                if(err.response.status === 401){
+                    console.log("logout")
+                }
+                this.setState({loading:false})
+                console.log(err)
+            })
+
+            axios.get(`https://friendsfeed.herokuapp.com/api/users/post/comments?post_id=${query.id}`,{
                 headers:{
                     'Authorization':`${currentUser.token_type} ${currentUser.access_token}`
                 }
             })
             .then(res=>{
-                console.log(res.data.likes_count)
                 this.setState({
                     nextPageURL:res.data.links.next_page_url,
                     allComments:res.data.message,
-                    comments_count:res.data.comments_count
+                    comments_count:res.data.comments_count,
+                    likes_count:res.data.likes_count
                 })
             }).catch(err=>{
                 if(err.response.status === 401){
@@ -82,13 +109,11 @@ class CommentsPage extends React.Component{
             return
         }
         const {currentUser}  = this.props;
-        const {customData} = this.props.location;
-        console.log(this.state.comment);
         this.setState({
             submitting:true
         });
         axios.post("https://friendsfeed.herokuapp.com/api/users/post/comments",{
-            post_id:customData.postId,
+            post_id:this.state.postId,
             comment:this.state.comment,
             post_user_id:this.state.userId
         },{
@@ -146,8 +171,11 @@ class CommentsPage extends React.Component{
 
 
     render(){
-        const {customData} = this.props.location;
-        if(!customData){this.props.history.push("/home");
+        const {location} = this.props;
+        console.log("likes ->",this.state.likes_count);
+        autosize(this.textarea);
+        const query = queryString.parse(location.search)
+        if(!query || !query.id){this.props.history.push("/home");
         return(<div ref={c => (this.textarea = c)}></div>)}
         else
         return(
@@ -155,13 +183,13 @@ class CommentsPage extends React.Component{
                 <Header active="home"/>
                 <div style={{marginTop:"100px"}}>
                     <PostCard
-                    loading={false} user={customData.user} 
-                    post_images={customData.post_images}
-                    liked={Boolean(customData.liked)} 
-                    postId={customData.postId}
-                    post={customData.post} userId={customData.userId}
-                    likes={customData.likes} comments={this.state.comments_count}
-                    createdAt = {moment(customData.created_at)}
+                    loading={this.state.loading} user={this.state.postUser} 
+                    post_images={this.state.post_images}
+                    liked={Boolean(this.state.liked)} 
+                    postId={this.state.postId}
+                    post={this.state.post} userId={this.state.userId}
+                    likes={this.state.likes_count} comments={this.state.comments_count}
+                    createdAt = {moment(this.state.created_at)} 
                     />
                     <div>
                         <div style={{width:500, marginLeft:"auto",marginRight:"auto",marginTop:"20px"}}>
@@ -204,13 +232,13 @@ class CommentsPage extends React.Component{
                         <div style={{width:500, marginLeft:"auto",marginRight:"auto",marginTop:"20px"}}>
                         {
                             this.state.allComments.length?(
-                                this.state.allComments.map(item=>(item !=="no_comments"?(
-                                <CommentCard commentId={item.comment_id} userId={item.user_id} 
+                                this.state.allComments.map((item,index)=>(item !=="no_comments"?(
+                                <CommentCard key={`${index}`} commentId={item.comment_id} userId={item.user_id} 
                                     name={item.name} username={item.username} profilePicture={item.profile_picture}
-                                    comment={item.comment} postId={customData.postId} createdAt={moment(item.created_at).fromNow()}
+                                    comment={item.comment} postId={this.state.postId} createdAt={moment(item.created_at).fromNow()}
                                     onCommentDelete={this.deleteComment}
                                 />
-                                ):<h2 className="text-muted" align="center">No comments</h2>))
+                                ):<h2 className="text-muted" key={`${index}`} align="center">No comments</h2>))
                             ):(
                                 <div style={{textAlign:"center"}}>
                                     <Loader
@@ -239,4 +267,4 @@ const mapDispatchToProps = dispatch =>({
 })
 
 
-export default connect(mapStateToProps,mapDispatchToProps)(withRouter(CommentsPage));
+export default connect(mapStateToProps,mapDispatchToProps)(withRouter(PostPage));

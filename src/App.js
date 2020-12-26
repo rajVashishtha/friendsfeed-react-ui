@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import VerificationPage from './page/verificationpage/verification.page';
 import ForgotPasswordPage from './page/forgotpasswordpage/forgotpassword.page';
 import SearchPage from './page/searchpage/searchpage.page';
-import CommentsPage from './page/comments/comments.page';
+import PostPage from './page/post/post.page';
 import SimpleReactLightbox from "simple-react-lightbox";
 
 
@@ -34,7 +34,7 @@ class App extends React.Component{
           <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/profile" component={ProfilePage}></PrivateRoute>
           <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/message" component={MessagePage}></PrivateRoute>
           <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/search" component={SearchPage}></PrivateRoute>
-          <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/comments" component={CommentsPage}></PrivateRoute>
+          <PrivateRoute exact auth={currentUser && (currentUser.active === 1)} path="/post" component={PostPage}></PrivateRoute>
           <Route exact path="/verify" component={VerificationPage}></Route>
           <Route exact path="/recover-password" component={ForgotPasswordPage}></Route>
         </Switch>
